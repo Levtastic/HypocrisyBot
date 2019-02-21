@@ -10,7 +10,7 @@ from levbot import UserLevel, TypingContext
 
 
 url_chars = r'[a-z0-9\._~%\-\+&\#\?!=\(\)@]'
-url_pattern = re.compile(r'https?://(?:(?:\S*\.)?reddit\.com/r/' +
+url_pattern = re.compile(r'(?<!<)https?://(?:(?:\S*\.)?reddit\.com/r/' +
                          url_chars + r'+/comments/' + url_chars +
                          r'+/' + url_chars + r'+/?|v\.redd\.it/' +
                          url_chars + r'+/?)\b',
@@ -40,8 +40,8 @@ class VReddit:
                 message.delete()
                 continue
 
-        self.bot.messages.append(src_message)
-        self.bot.messages.append(dest_message)
+            self.bot.messages.append(src_message)
+            self.bot.messages.append(dest_message)
 
         logging.info('old messages fetched')
 
