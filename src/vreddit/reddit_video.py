@@ -154,7 +154,7 @@ class RedditVideo:
             f' -i "{video_file}"'
             f' -c:v libx264 -b:v {ideal_bitrate}k -pass 2'
             f' {rescale}'
-            ' -c:a aac -b:a 96k'
+            ' -c:a aac -b:a 96k -strict -2'
             f' "{result_file}"'
         )
 
