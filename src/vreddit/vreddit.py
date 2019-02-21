@@ -3,7 +3,7 @@ import asyncio
 import aiohttp
 import logging
 
-from discord import Embed
+from discord import Embed, NotFound, Forbidden
 from .models.vreddit_message import VRedditMessage
 from .reddit_video import RedditVideo, PostError
 from levbot import UserLevel, TypingContext
@@ -31,13 +31,19 @@ class VReddit:
         bot.register_event('on_reaction_add', self.on_reaction_add)
 
     async def on_ready(self):
-        coroutines = []
-
         for message in self.bot.database.get_VRedditMessage_list():
-            coroutines.append(message.get_src_message())
-            coroutines.append(message.get_dest_message())
+            try:
+                src_message = await message.get_src_message()
+                dest_message = await message.get_dest_message()
 
-        await asyncio.gather(*coroutines, return_exceptions=True)
+            except (NotFound, Forbidden):
+                message.delete()
+                continue
+
+        self.bot.messages.append(src_message)
+        self.bot.messages.append(dest_message)
+
+        logging.info('old messages fetched')
 
     async def on_message(self, message):
         await self.handle_new_message(message)
