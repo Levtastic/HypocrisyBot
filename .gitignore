@@ -1,0 +1,5 @@
+__pycache__/
+logs/
+temp/
+settings.py
+levbot.db

@@ -1,0 +1,184 @@
+import os
+import shutil
+import aiohttp
+import asyncio
+import functools
+import logging
+
+from uuid import uuid1 as uuid
+
+
+rmtree = functools.partial(shutil.rmtree, ignore_errors=True)
+
+
+class PostError(Exception):
+    pass
+
+
+class VideoError(Exception):
+    pass
+
+
+class RedditVideo:
+    def __init__(self, url, temp_directory, *, loop=None):
+        self.url = url
+        self.working_dir = os.path.join(temp_directory, str(uuid()))
+        self._populated = False
+
+        self.loop = loop or asyncio.get_event_loop()
+
+    async def __aenter__(self):
+        os.makedirs(self.working_dir, exist_ok=True)
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        return await self.loop.run_in_executor(
+            None, rmtree, self.working_dir)
+
+    @property
+    def is_populated(self):
+        return self._populated
+
+    async def get_video_file(self, max_file_size=10485760):
+        try:
+            await self.populate()
+        except PostError:
+            logging.info('No video found at ' + self.url)
+            return None
+
+        video_file, audio_file = await asyncio.gather(
+            self.download_file('v.mp4', self.video_url),
+            self.download_file('a.mp4', self.audio_url)
+        )
+
+        if audio_file:
+            video_file = await self.merge(video_file, audio_file)
+
+        self.file_size = os.path.getsize(video_file)
+        self.final_file_size = self.file_size
+
+        if self.file_size > max_file_size:
+            video_file = await self.ensure_size(video_file, max_file_size)
+            self.final_file_size = os.path.getsize(video_file)
+
+        return video_file
+
+    async def populate(self):
+        if self.is_populated:
+            return
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(self.url + '.json') as resp:
+                data = await resp.json()
+
+        main_data = data[0]['data']['children'][0]['data']
+        if main_data['post_hint'] != 'hosted:video':
+            raise PostError('Reddit post must contain a video')
+
+        video_data = main_data['secure_media']['reddit_video']
+
+        if video_data['is_gif']:
+            raise PostError('Reddit post must contain a video')
+
+        self.title = main_data['title']
+        self.short_url = main_data['url']
+        self.audio_url = self.short_url + '/audio'
+        self.video_url = video_data['fallback_url']
+        self.height = int(video_data['height'])
+        self.width = int(video_data['width'])
+        self.duration = int(video_data['duration'])
+
+        self._populated = True
+
+    async def download_file(self, filename, url, chunk_size=1024):
+        filename = os.path.join(self.working_dir, filename)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                if resp.status != 200:
+                    return ''
+
+                with open(filename, 'wb') as file:
+                    while True:
+                        chunk = await resp.content.read(chunk_size)
+                        if not chunk:
+                            return filename
+
+                        file.write(chunk)
+
+    async def merge(self, video_file, audio_file):
+        result_file = os.path.join(os.path.dirname(video_file), 'm.mp4')
+
+        cmd = (
+            'ffmpeg -hide_banner -loglevel panic'
+            f' -i "{video_file}" -i "{audio_file}"'
+            ' -c:v copy -c:a copy'
+            f' -map 0:v:0 -map 1:a:0 "{result_file}"'
+        )
+
+        logging.info('Running command: ' + cmd)
+
+        await self.loop.run_in_executor(None, os.system, cmd)
+
+        return result_file
+
+    async def ensure_size(self, video_file, max_file_size):
+        video_file = await self.squish_file(video_file, max_file_size)
+
+        if os.path.getsize(video_file) > max_file_size:
+            video_file = await self.clip_file(video_file, max_file_size)
+
+        return video_file
+
+    async def squish_file(self, video_file, max_file_size):
+        result_file = os.path.join(os.path.dirname(video_file), 's.mp4')
+
+        max_kbits = max_file_size * 0.008
+        ideal_bitrate = max_kbits / self.duration
+        ideal_bitrate -= 96  # audio channel
+        ideal_bitrate *= 0.98  # allow room for metadata
+
+        if ideal_bitrate < 5:
+            # ahahahaha no
+            ideal_bitrate = 5
+
+        rescale = ''
+        if self.height > 480:
+            rescale = '-vf scale="trunc(oh*a/2)*2:480"'
+
+        cmd = (
+            'ffmpeg -hide_banner -loglevel panic'
+            f' -y -i "{video_file}"'
+            f' -c:v libx264 -b:v {ideal_bitrate}k -pass 1 -an'
+            f' {rescale}'
+            f' -f mp4 {os.devnull} &&'
+            ' ffmpeg -hide_banner -loglevel panic'
+            f' -i "{video_file}"'
+            f' -c:v libx264 -b:v {ideal_bitrate}k -pass 2'
+            f' {rescale}'
+            ' -c:a aac -b:a 96k'
+            f' "{result_file}"'
+        )
+
+        logging.info('Running command: ' + cmd)
+
+        await self.loop.run_in_executor(None, os.system, cmd)
+
+        return result_file
+
+    async def clip_file(self, video_file, max_file_size):
+        result_file = os.path.join(os.path.dirname(video_file), 'c.mp4')
+
+        max_file_size -= 10000  # space for final closing bytes
+
+        cmd = (
+            'ffmpeg -hide_banner -loglevel panic'
+            f' -i "{video_file}"'
+            f' -c copy -fs {max_file_size}'
+            f' "{result_file}"'
+        )
+
+        logging.info('Running command: ' + cmd)
+
+        await self.loop.run_in_executor(None, os.system, cmd)
+
+        return result_file
