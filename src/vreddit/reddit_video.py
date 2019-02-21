@@ -84,7 +84,7 @@ class RedditVideo:
             self.width = int(video_data['width'])
             self.duration = int(video_data['duration'])
 
-        except KeyError:
+        except (KeyError, TypeError):
             raise PostError('Reddit post must contain a video')
 
         self._populated = True
