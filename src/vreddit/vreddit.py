@@ -24,10 +24,20 @@ class VReddit:
 
         bot.database.add_models(VRedditMessage)
 
+        bot.register_event('on_ready', self.on_ready)
         bot.register_event('on_message', self.on_message)
         bot.register_event('on_message_edit', self.on_message_edit)
         bot.register_event('on_message_delete', self.on_message_delete)
         bot.register_event('on_reaction_add', self.on_reaction_add)
+
+    async def on_ready(self):
+        coroutines = []
+
+        for message in self.bot.database.get_VRedditMessage_list():
+            coroutines.append(message.get_src_message())
+            coroutines.append(message.get_dest_message())
+
+        await asyncio.gather(*coroutines, return_exceptions=True)
 
     async def on_message(self, message):
         await self.handle_new_message(message)
