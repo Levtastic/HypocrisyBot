@@ -30,15 +30,6 @@ class BotCommands:
             )
         )
         commands.register_handler(
-            'invite',
-            self.cmd_invite,
-            user_level=UserLevel.user,
-            description=(
-                'Sends a link in private that can be used to invite the'
-                ' bot to your server'
-            )
-        )
-        commands.register_handler(
             'quit',
             self.cmd_quit,
             user_level=UserLevel.bot_owner,
@@ -81,6 +72,16 @@ class BotCommands:
             )
         )
 
+        if self.bot.settings['offer_invite_link']:
+            commands.register_handler(
+                'invite',
+                self.cmd_invite,
+                user_level=UserLevel.user,
+                description=(
+                    'Sends a link in private that can be used to invite the'
+                    ' bot to your server'
+                )
+            )
         if self.bot.settings['source_url']:
             commands.register_handler(
                 'source',

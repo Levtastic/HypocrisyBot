@@ -2,6 +2,7 @@ bot_token = 'token'
 db_name = 'levbot.db'
 donate_url = ''
 log_directory = 'logs'
+offer_invite_link = False
 owner_usernames = ['name#1234']
 pushbullet_token = ''
 source_url = ''
