@@ -77,9 +77,6 @@ class RedditVideo:
 
         video_data = main_data['secure_media']['reddit_video']
 
-        if video_data['is_gif']:
-            raise PostError('Reddit post must contain a video')
-
         self.title = main_data['title']
         self.short_url = main_data['url']
         self.audio_url = self.short_url + '/audio'
