@@ -194,7 +194,7 @@ class Model(object):
     def _build_from_fields(self, fields):
         fields = dict(fields)
 
-        model = self.__class__(self.bot)
+        model = self.__class__(self.bot, self.database)
         model._id = fields.pop('id')
         for field in model.fields:
             value = fields.pop(field)
