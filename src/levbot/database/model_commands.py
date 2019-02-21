@@ -104,7 +104,7 @@ class ModelCommands:
             field, value = pair.split('=', 1)
             field, value = field.strip(), value.strip()
 
-            if field not in model.fields:
+            if field not in model.fields and field != 'id':
                 raise CommandException('Unrecognised field `{}`'.format(field))
 
             yield field, value
