@@ -37,11 +37,16 @@ class VReddit:
                 dest_message = await message.get_dest_message()
 
             except (NotFound, Forbidden):
-                message.delete()
+                src_message = None
+                dest_message = None
                 continue
 
-            self.bot.messages.append(src_message)
-            self.bot.messages.append(dest_message)
+            if src_message and dest_message:
+                self.bot.messages.append(src_message)
+                self.bot.messages.append(dest_message)
+
+            else:
+                message.delete()
 
         logging.info('old messages fetched')
 
@@ -85,14 +90,14 @@ class VReddit:
                 await video.populate()
             except PostError:
                 logging.info('No video found')
-                return
+                return vmessage.delete()
 
             with TypingContext(smessage.channel):
                 filename = await video.get_video_file(
                     max_file_size=7.75 * 1024 * 1024)
                 if not filename:
                     # no video at this url
-                    return
+                    return vmessage.delete()
 
                 if not vmessage.exists():
                     # check that nothing's changed since we started
