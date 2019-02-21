@@ -1,4 +1,5 @@
 from levbot.database import Model
+from discord import NotFound, Forbidden
 
 
 class VRedditMessage(Model):
@@ -53,6 +54,10 @@ class VRedditMessage(Model):
         super().delete()
 
     async def delete_message(self):
-        message = await self.get_dest_message()
-        if message:
-            await self.bot.delete_message(message)
+        try:
+            message = await self.get_dest_message()
+            if message:
+                await self.bot.delete_message(message)
+
+        except (NotFound, Forbidden):
+            pass
