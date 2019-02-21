@@ -72,18 +72,20 @@ class RedditVideo:
                 data = await resp.json()
 
         main_data = data[0]['data']['children'][0]['data']
-        if main_data['post_hint'] != 'hosted:video':
+
+        try:
+            video_data = main_data['secure_media']['reddit_video']
+
+            self.title = main_data['title']
+            self.short_url = main_data['url']
+            self.audio_url = self.short_url + '/audio'
+            self.video_url = video_data['fallback_url']
+            self.height = int(video_data['height'])
+            self.width = int(video_data['width'])
+            self.duration = int(video_data['duration'])
+
+        except KeyError:
             raise PostError('Reddit post must contain a video')
-
-        video_data = main_data['secure_media']['reddit_video']
-
-        self.title = main_data['title']
-        self.short_url = main_data['url']
-        self.audio_url = self.short_url + '/audio'
-        self.video_url = video_data['fallback_url']
-        self.height = int(video_data['height'])
-        self.width = int(video_data['width'])
-        self.duration = int(video_data['duration'])
 
         self._populated = True
 
