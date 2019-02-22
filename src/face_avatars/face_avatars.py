@@ -2,7 +2,7 @@ import aiohttp
 import logging
 
 from levbot import UserLevel, TypingContext
-from discord import HTTPException
+from discord import HTTPException, InvalidArgument
 
 
 class FaceAvatars:
@@ -38,7 +38,8 @@ class FaceAvatars:
                 avatar=bavatar
             )
 
-        except HTTPException:
+        except (HTTPException, InvalidArgument):
+            logging.exception(bavatar)
             return False
 
         logging.info('New face avatar set.')
