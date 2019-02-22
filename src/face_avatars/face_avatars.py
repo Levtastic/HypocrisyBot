@@ -8,7 +8,7 @@ from discord import HTTPException, InvalidArgument
 class FaceAvatars:
     def __init__(self, bot):
         self.bot = bot
-        self.url = 'https://thispersondoesnotexist.com/'
+        self.url = 'https://thispersondoesnotexist.com/image'
 
         bot.register_event('on_ready', self.on_ready)
 
