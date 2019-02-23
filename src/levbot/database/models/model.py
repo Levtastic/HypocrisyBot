@@ -29,7 +29,7 @@ class Model(object):
             name
         ))
 
-    def __str__(self):
+    def __repr__(self):
         objfmt = '{name} `({id!r})`: {fields}'
         fieldfmt = '`{f}` = `{v!r}`'
 
