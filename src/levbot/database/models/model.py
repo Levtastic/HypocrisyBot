@@ -212,7 +212,7 @@ class Model(object):
 
         return model
 
-    def get_all(self, order_by='id ASC'):
+    def get_all(self, order_by='id ASC', limit=None):
         query = """
             SELECT
                 *
@@ -221,6 +221,10 @@ class Model(object):
             ORDER BY
                 {}
         """.format(self.table, order_by)
+
+        if limit is not None:
+            query += 'LIMIT {}'.format(limit)
+
         data = self.database.fetch_all(query)
 
         return [self._build_from_fields(fields) for fields in data]
