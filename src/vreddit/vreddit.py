@@ -160,17 +160,15 @@ class VReddit:
         )
 
     async def add_embed(self, dmessage, smessage, video):
-        def fmt(n):
-            return '{:.2f}mb'.format(n / 1024 / 1024)
-
         description = (
             f'Originally linked by <@{smessage.author.id}>'
         )
 
         if video.file_size != video.final_file_size:
+            percentage = (video.final_file_size / video.file_size) * 100
             description += (
-                f'\n\nFile compressed from {fmt(video.file_size)}'
-                f' to {fmt(video.final_file_size)}.'
+                f'\n\nVideo compressed to {percentage:.2g}% of'
+                ' the original file size.'
                 '\nClick the title above to see the original'
                 ' quality video on reddit'
             )
