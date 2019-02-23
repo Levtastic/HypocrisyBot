@@ -181,7 +181,7 @@ class VReddit:
 
         embed.set_footer(text=(
             'Admins and the original poster can click the'
-            ' red X to delete this message'
+            ' ❌ to delete this message'
         ))
 
         await self.bot.edit_message(dmessage, embed=embed)
