@@ -40,7 +40,6 @@ class VReddit:
             except (NotFound, Forbidden):
                 src_message = None
                 dest_message = None
-                continue
 
             if src_message and dest_message:
                 self.bot.messages.append(src_message)
