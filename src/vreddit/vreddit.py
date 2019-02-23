@@ -31,7 +31,8 @@ class VReddit:
         bot.register_event('on_reaction_add', self.on_reaction_add)
 
     async def on_ready(self):
-        for message in self.bot.database.get_VRedditMessage_list():
+        for message in self.bot.database.get_VRedditMessage_list(
+                order_by='id DESC')[:50]:
             try:
                 src_message = await message.get_src_message()
                 dest_message = await message.get_dest_message()
