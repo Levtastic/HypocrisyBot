@@ -1,3 +1,4 @@
+avatar_generator_url = 'https://thiscatdoesnotexist.com/'
 bot_token = 'token'
 db_name = 'levbot.db'
 donate_url = ''
