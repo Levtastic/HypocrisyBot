@@ -8,9 +8,9 @@ from discord import HTTPException, InvalidArgument
 
 
 class FaceAvatars:
-    def __init__(self, bot):
+    def __init__(self, bot, image_generator_url):
         self.bot = bot
-        self.url = 'https://thispersondoesnotexist.com/image'
+        self.url = image_generator_url
 
         bot.commands.register_handler(
             'refresh avatar',

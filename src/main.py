@@ -16,7 +16,7 @@ async def on_ready():
 
 
 VReddit(bot, settings['temp_directory'])
-FaceAvatars(bot)
+FaceAvatars(bot, 'https://thiscatdoesnotexist.com/')
 
 bot.run()
 
