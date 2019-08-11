@@ -8,7 +8,7 @@ from .models.vreddit_message import VRedditMessage
 from .reddit_video import RedditVideo, PostError
 from levbot import UserLevel, TypingContext
 
-
+# For the removal of unnescesary characters of the Long Link
 url_chars = r'[a-z0-9\._~%\-\+&\#\?!=\(\)@]'
 url_pattern = re.compile(r'(?<!<)https?://(?:(?:\S*\.)?reddit\.com/r/' +
                          url_chars + r'+/comments/' + url_chars +
@@ -24,11 +24,11 @@ class VReddit:
 
         bot.database.add_models(VRedditMessage)
 
-        bot.register_event('on_ready', self.on_ready)
-        bot.register_event('on_message', self.on_message)
-        bot.register_event('on_message_edit', self.on_message_edit)
-        bot.register_event('on_message_delete', self.on_message_delete)
-        bot.register_event('on_reaction_add', self.on_reaction_add)
+        bot.register_event('on_ready', self.on_ready) # Event where cleanup on crashes happens
+        bot.register_event('on_message', self.on_message) # Main Event for the needed given Logic
+        bot.register_event('on_message_edit', self.on_message_edit) # Calls the on message when executed
+        bot.register_event('on_message_delete', self.on_message_delete) # stops all the bot is doing with the message and throws it in the trashcan
+        bot.register_event('on_reaction_add', self.on_reaction_add) # Secondary event for deleting the message
 
     async def on_ready(self):
         for message in self.bot.database.get_VRedditMessage_list(
@@ -49,23 +49,24 @@ class VReddit:
                 message.delete()
 
         logging.info('old messages fetched')
+        #Above function basically just checks for unfinished tasks before the bot got shut down and either continues them or stops them
 
-    async def on_message(self, message):
-        await self.handle_new_message(message)
+    async def on_message(self, message): # Wait for handling of the message to be done
+        await self.handle_new_message(message) 
 
-    async def on_message_edit(self, before, after):
+    async def on_message_edit(self, before, after): # If the message changed from the OG version, handle the message again
         if before.content != after.content:
             # not just an automatic embed change
             await self.handle_new_message(after)
 
     async def handle_new_message(self, smessage):
         if smessage.channel.is_private:
-            return
+            return # do nothing if this gets sent in a private channel
 
         url = await self.get_long_url(smessage.content)
-        vmessage = self.get_vmessage(smessage)
+        vmessage = self.get_vmessage(smessage) # shortens the message
 
-        if vmessage:
+        if vmessage: # check if the message sent is already handled
             if url == vmessage.src_url:
                 # message looks handled already
                 return
@@ -85,6 +86,7 @@ class VReddit:
         vmessage.src_message_did = smessage.id
         vmessage.save()
 
+        
         async with RedditVideo(url, self.temp_directory) as video:
             try:
                 await video.populate()
@@ -105,7 +107,8 @@ class VReddit:
 
                 dmessage = await self.bot.send_file(
                     smessage.channel, filename, filename='reddit.mp4')
-
+                # Above portion mainly handles changes during the execution of the Conversion
+                
         if vmessage.exists():
             vmessage.dest_message_did = dmessage.id
             vmessage.save()
