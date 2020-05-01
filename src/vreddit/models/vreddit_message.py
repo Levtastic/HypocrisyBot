@@ -11,7 +11,7 @@ class VRedditMessage(Model):
             'src_url': None,
             'channel_did': None,
             'src_message_did': None,
-            'dest_message_did': '',
+            'dest_message_did': None,
         }
 
     def get_channel(self):

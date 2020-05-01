@@ -3,9 +3,9 @@ CREATE TABLE
 (
     id INTEGER PRIMARY KEY ASC AUTOINCREMENT,
     src_url TEXT NOT NULL,
-    channel_did TEXT NOT NULL,
-    src_message_did TEXT NOT NULL,
-    dest_message_did TEXT NOT NULL
+    channel_did INTEGER NOT NULL,
+    src_message_did INTEGER NOT NULL,
+    dest_message_did INTEGER NULL
 );
 
 CREATE INDEX
