@@ -165,7 +165,7 @@ class VReddit:
             dest_message_did=smessage.id
         )
 
-    async def get_embed(self, smessage, video):
+    def get_embed(self, smessage, video):
         description = (
             f'Originally linked by <@{smessage.author.id}>'
         )
