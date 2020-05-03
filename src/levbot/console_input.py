@@ -43,7 +43,7 @@ class ConsoleInput:
 
         self.is_ready.set()
 
-        while not self.bot.is_closed:
+        while not self.bot.is_closed():
             await self.is_ready.wait()
             message = await self.get_console_input()
 
@@ -77,7 +77,7 @@ class ConsoleInput:
     async def get_console_input(self):
         lines = []
 
-        while not self.bot.is_closed:
+        while not self.bot.is_closed():
             line = await self.bot.loop.run_in_executor(None, input, "\r> ")
 
             command = line.lower()

@@ -26,7 +26,7 @@ class FaceAvatars:
     async def avatar_loop(self):
         await self.bot.wait_until_ready()
 
-        while not self.bot.is_closed:
+        while not self.bot.is_closed():
             if random.randint(1, 60 * 24) == 1:
                 await self.get_new_avatar()
 
