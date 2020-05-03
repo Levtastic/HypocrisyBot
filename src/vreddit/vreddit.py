@@ -108,6 +108,10 @@ class VReddit:
                     file=File(
                         filename,
                         filename='reddit.mp4'
+                    ),
+                    embed=self.get_embed(
+                        smessage,
+                        video
                     )
                 )
 
@@ -115,10 +119,7 @@ class VReddit:
             vmessage.dest_message_did = dmessage.id
             vmessage.save()
 
-            await asyncio.gather(
-                self.add_embed(dmessage, smessage, video),
-                dmessage.add_reaction('❌')
-            )
+            await dmessage.add_reaction('❌')
 
         else:
             # dang it, link deleted while we're uploading!
@@ -164,7 +165,7 @@ class VReddit:
             dest_message_did=smessage.id
         )
 
-    async def add_embed(self, dmessage, smessage, video):
+    async def get_embed(self, smessage, video):
         description = (
             f'Originally linked by <@{smessage.author.id}>'
         )
@@ -189,7 +190,7 @@ class VReddit:
             ' ❌ to delete this message'
         ))
 
-        await dmessage.edit(embed=embed)
+        return embed
 
     async def on_message_delete(self, smessage):
         if isinstance(smessage.channel, PrivateChannel):
