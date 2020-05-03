@@ -1,3 +1,4 @@
+from discord.abc import PrivateChannel
 from ..user_level import UserLevel
 from ..commands import CommandException
 
@@ -93,7 +94,7 @@ class UserCommands:
 
     def get_guild(self, name, message):
         if name.lower() == 'here':
-            if message.channel.is_private:
+            if isinstance(message.channel, PrivateChannel):
                 raise CommandException(
                     "This command isn't supported for private channels"
                 )

@@ -1,5 +1,6 @@
 import inspect
 
+from discord.abc import PrivateChannel
 from ..user_level import UserLevel
 from . import CommandDispatcher, Handler
 from . import handlers
@@ -72,7 +73,7 @@ class Commands:
             if message.content.startswith(prefix):
                 return message.content[len(prefix):].lstrip()
 
-        if message.channel.is_private:
+        if isinstance(message.channel, PrivateChannel):
             return message.content
 
         return ''

@@ -1,6 +1,7 @@
 import discord
 
 from discord import ChannelType
+from discord.abc import PrivateChannel
 from .ordered_enum import OrderedEnum
 
 
@@ -44,7 +45,7 @@ class UserLevel(OrderedEnum):
         else:
             channel = channel_or_guild
 
-        if channel and channel.is_private:
+        if channel and isinstance(channel, PrivateChannel):
             return cls._get_private_level(user, channel)
 
         return cls._get_guild_level(user, channel, db_user)

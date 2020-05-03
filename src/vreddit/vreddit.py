@@ -4,6 +4,7 @@ import aiohttp
 import logging
 
 from discord import Embed, NotFound, Forbidden, File
+from discord.abc import PrivateChannel
 from .models.vreddit_message import VRedditMessage
 from .reddit_video import RedditVideo, PostError
 from levbot import UserLevel
@@ -59,7 +60,7 @@ class VReddit:
             await self.handle_new_message(after)
 
     async def handle_new_message(self, smessage):
-        if smessage.channel.is_private:
+        if isinstance(smessage.channel, PrivateChannel):
             return
 
         url = await self.get_long_url(smessage.content)
@@ -191,7 +192,7 @@ class VReddit:
         await dmessage.edit(embed=embed)
 
     async def on_message_delete(self, smessage):
-        if smessage.channel.is_private:
+        if isinstance(smessage.channel, PrivateChannel):
             return
 
         vmessage = self.get_vmessage(smessage) \
