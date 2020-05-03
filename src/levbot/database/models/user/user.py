@@ -6,9 +6,9 @@ from ....user_level import UserLevel
 
 
 class User(Model):
-    @cached_slot_property('_user_servers')
-    def user_servers(self):
-        return self.database.get_UserServer_list_by_user_id(self.id)
+    @cached_slot_property('_user_guilds')
+    def user_guilds(self):
+        return self.database.get_UserGuild_list_by_user_id(self.id)
 
     async def get_user(self):
         try:
@@ -28,23 +28,23 @@ class User(Model):
             'blacklisted': False,
         }
 
-    def is_admin(self, server):
-        for user_server in self.user_servers:
-            if user_server.server == server:
-                return user_server.admin
+    def is_admin(self, guild):
+        for user_guild in self.user_guilds:
+            if user_guild.guild == guild:
+                return user_guild.admin
 
         return False
 
-    def is_blacklisted(self, server):
-        for user_server in self.user_servers:
-            if user_server.server == server:
-                return user_server.blacklisted
+    def is_blacklisted(self, guild):
+        for user_guild in self.user_guilds:
+            if user_guild.guild == guild:
+                return user_guild.blacklisted
 
         return False
 
     def get_user_level(self, channel=None):
         if channel:
-            member = channel.server.get_member(self.user_did)
+            member = channel.guild.get_member(self.user_did)
             if member:
                 return UserLevel.get(member, channel)
 
@@ -53,12 +53,12 @@ class User(Model):
     def save(self):
         super().save()
 
-        for server in self.user_servers:
-            server.user_id = self.id
-            server.save()
+        for guild in self.user_guilds:
+            guild.user_id = self.id
+            guild.save()
 
     def delete(self):
-        for server in self.user_servers:
-            server.delete()
+        for guild in self.user_guilds:
+            guild.delete()
 
         super().delete()

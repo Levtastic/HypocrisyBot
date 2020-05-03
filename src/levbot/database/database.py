@@ -1,7 +1,7 @@
 import sqlite3
 
 from contextlib import closing
-from .models import CommandAlias, User, UserServer
+from .models import CommandAlias, User, UserGuild
 from .model_commands import ModelCommands
 from .user_commands import UserCommands
 
@@ -17,7 +17,7 @@ class Database:
         UserCommands(bot)
 
         self.models = {}
-        self.add_models(CommandAlias, User, UserServer)
+        self.add_models(CommandAlias, User, UserGuild)
 
     def __getattr__(self, name):
         if name.startswith('get_'):

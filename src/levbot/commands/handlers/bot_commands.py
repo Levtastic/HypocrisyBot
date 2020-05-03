@@ -107,8 +107,8 @@ class BotCommands:
     async def cmd_list_all_channels(self, message, channel_filter=''):
         channels = defaultdict(list)
 
-        for server, channel in self.get_text_channels(channel_filter):
-            channels[server].append(channel)
+        for guild, channel in self.get_text_channels(channel_filter):
+            channels[guild].append(channel)
 
         await self.bot.send_message(
             message.channel,
@@ -116,15 +116,15 @@ class BotCommands:
         )
 
     def get_text_channels(self, channel_filter):
-        for server in self.bot.servers:
-            for channel in server.channels:
+        for guild in self.bot.guilds:
+            for channel in guild.channels:
                 if channel.type != discord.ChannelType.text:
                     continue
 
                 if channel_filter.lower() not in channel.name.lower():
                     continue
 
-                yield server, channel
+                yield guild, channel
 
     def get_channels_text(self, channels):
         if not channels:
@@ -135,13 +135,13 @@ class BotCommands:
         )
 
     def get_channels_text_pieces(self, channels):
-        for server in channels.keys():
-            yield 'Server: `{}`'.format(server)
+        for guild in channels.keys():
+            yield 'Server: `{}`'.format(guild)
 
-            for channel in channels[server]:
+            for channel in channels[guild]:
                 channel_text = '    `{0.id}`: `{0.name}`'.format(channel)
 
-                if not channel.permissions_for(server.me).send_messages:
+                if not channel.permissions_for(guild.me).send_messages:
                     channel_text += ' (cannot message)'
 
                 yield channel_text
@@ -149,8 +149,8 @@ class BotCommands:
     async def cmd_list_all_users(self, message, user_filter=''):
         members = defaultdict(list)
 
-        for server, member in self.get_members(user_filter):
-            members[server].append(member)
+        for guild, member in self.get_members(user_filter):
+            members[guild].append(member)
 
         await self.bot.send_message(
             message.channel,
@@ -158,12 +158,12 @@ class BotCommands:
         )
 
     def get_members(self, user_filter):
-        for server in self.bot.servers:
-            for member in server.members:
+        for guild in self.bot.guilds:
+            for member in guild.members:
                 if user_filter.lower() not in member.name.lower():
                     continue
 
-                yield server, member
+                yield guild, member
 
     def get_users_text(self, members):
         if not members:
@@ -174,10 +174,10 @@ class BotCommands:
         )
 
     def get_users_text_pieces(self, members):
-        for server in members.keys():
-            yield 'Server: `{}`'.format(server)
+        for guild in members.keys():
+            yield 'Server: `{}`'.format(guild)
 
-            for member in members[server]:
+            for member in members[guild]:
                 member_text = '    `{0.id}`: `{0.name}`'.format(member)
 
                 if member.nick:

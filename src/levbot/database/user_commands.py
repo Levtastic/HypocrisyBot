@@ -61,68 +61,68 @@ class UserCommands:
         )
 
     async def cmd_add_user(self, message, username, usertype,
-                           servername='here'):
-        server = self.get_server(servername, message)
-        duser = self.get_discord_user(server, username)
-        user = self.ensure_user(server, duser)
-        userserver = self.ensure_userserver(server, user)
+                           guildname='here'):
+        guild = self.get_guild(guildname, message)
+        duser = self.get_discord_user(guild, username)
+        user = self.ensure_user(guild, duser)
+        userguild = self.ensure_userguild(guild, user)
 
         if usertype == 'admin':
-            userserver.admin = True
-            userserver.save()
+            userguild.admin = True
+            userguild.save()
 
             return await self.bot.send_message(
                 message.channel,
                 'Admin `{!s}` added to `{}` successfully'.format(
                     duser,
-                    server.name
+                    guild.name
                 )
             )
 
         elif usertype == 'blacklist':
-            userserver.blacklisted = True
-            userserver.save()
+            userguild.blacklisted = True
+            userguild.save()
 
             return await self.bot.send_message(
                 message.channel,
                 'Blacklist `{!s}` added to `{}` successfully'.format(
                     duser,
-                    server.name
+                    guild.name
                 )
             )
 
         raise CommandException('Unknown user type `{}`'.format(usertype))
 
-    def get_server(self, name, message):
+    def get_guild(self, name, message):
         if name.lower() == 'here':
             if message.channel.is_private:
                 raise CommandException(
                     "This command isn't supported for private channels"
                 )
 
-            return message.server
+            return message.guild
 
-        server = self.bot.get_server(name)
-        if server:
-            return server
+        guild = self.bot.get_guild(name)
+        if guild:
+            return guild
 
-        gen = self.get_servers_with_permission(name, message.author)
-        server = next(gen, None)
+        gen = self.get_guilds_with_permission(name, message.author)
+        guild = next(gen, None)
 
-        if server:
-            return server
+        if guild:
+            return guild
 
         raise CommandException('Server `{}` not found'.format(name))
 
-    def get_servers_with_permission(self, name, member):
-        for server in self.bot.servers:
-            if UserLevel.get(member, server) < self.user_level:
+    def get_guilds_with_permission(self, name, member):
+        for guild in self.bot.guilds:
+            if UserLevel.get(member, guild) < self.user_level:
                 continue
 
-            if name in server.name:
-                yield server
+            if name in guild.name:
+                yield guild
 
-    def ensure_user(self, server, duser):
+    def ensure_user(self, guild, duser):
         user = self.bot.database.get_User_by_user_did(duser.id)
 
         if not user:
@@ -132,17 +132,17 @@ class UserCommands:
 
         return user
 
-    def get_discord_user(self, server, name):
+    def get_discord_user(self, guild, name):
         if name[0:3] == '<@!':
-            retmember = server.get_member(name[3:-1])
+            retmember = guild.get_member(name[3:-1])
 
         elif name[0:2] == '<@':
-            retmember = server.get_member(name[2:-1])
+            retmember = guild.get_member(name[2:-1])
 
         else:
             name = name.lower()
 
-            for member in server.members:
+            for member in guild.members:
                 if name in str(member).lower():
                     retmember = member
 
@@ -151,95 +151,95 @@ class UserCommands:
 
         raise CommandException('User `{}` not found'.format(name))
 
-    def ensure_userserver(self, server, user):
-        userserver = self.bot.database.get_UserServer()
-        userserver = userserver.get_by(
-            server_did=server.id,
+    def ensure_userguild(self, guild, user):
+        userguild = self.bot.database.get_UserGuild()
+        userguild = userguild.get_by(
+            guild_did=guild.id,
             user_id=user.id
         )
 
-        if not userserver:
-            userserver = self.bot.database.get_UserServer()
-            userserver.server_did = server.id
-            userserver.user_id = user.id
-            userserver.save()
+        if not userguild:
+            userguild = self.bot.database.get_UserGuild()
+            userguild.guild_did = guild.id
+            userguild.user_id = user.id
+            userguild.save()
 
-        return userserver
+        return userguild
 
     async def cmd_remove_user(self, message, username, usertype,
-                              servername='here'):
-        server = self.get_server(servername, message)
-        duser = self.get_discord_user(server, username)
-        user = self.ensure_user(server, duser)
-        userserver = self.ensure_userserver(server, user)
+                              guildname='here'):
+        guild = self.get_guild(guildname, message)
+        duser = self.get_discord_user(guild, username)
+        user = self.ensure_user(guild, duser)
+        userguild = self.ensure_userguild(guild, user)
 
         if usertype == 'admin':
-            userserver.admin = False
-            userserver.save()
+            userguild.admin = False
+            userguild.save()
 
-            self.clean_up(user, userserver)
+            self.clean_up(user, userguild)
 
             return await self.bot.send_message(
                 message.channel,
                 'Admin `{!s}` removed from `{}` successfully'.format(
                     duser,
-                    server.name
+                    guild.name
                 )
             )
 
         elif usertype == 'blacklist':
-            userserver.blacklisted = False
-            userserver.save()
+            userguild.blacklisted = False
+            userguild.save()
 
-            self.clean_up(user, userserver)
+            self.clean_up(user, userguild)
 
             return await self.bot.send_message(
                 message.channel,
                 'Blacklist `{!s}` removed from `{}` successfully'.format(
                     duser,
-                    server.name
+                    guild.name
                 )
             )
 
         raise CommandException('Unknown user type `{}`'.format(usertype))
 
-    def clean_up(self, user, userserver):
-        if not userserver.admin and not userserver.blacklisted:
-            userserver.delete()
+    def clean_up(self, user, userguild):
+        if not userguild.admin and not userguild.blacklisted:
+            userguild.delete()
 
-        if not user.user_servers:
+        if not user.user_guilds:
             user.delete()
 
-    async def cmd_list_users(self, message, listtype='both', servername='',
+    async def cmd_list_users(self, message, listtype='both', guildname='',
                              username=''):
         users = self.bot.database.get_User_list()
 
-        if servername:
-            server = self.get_server(servername, message)
+        if guildname:
+            guild = self.get_guild(guildname, message)
         else:
-            server = None
+            guild = None
 
-        text = await self.get_list_text(users, username, listtype, server,
+        text = await self.get_list_text(users, username, listtype, guild,
                                         message)
 
         await self.bot.send_message(message.channel, text)
 
-    async def get_list_text(self, users, username, listtype, server, message):
+    async def get_list_text(self, users, username, listtype, guild, message):
         pieces = []
 
         for user in users:
-            for userserver in user.user_servers:
-                if not self.check_listtype(userserver, listtype):
+            for userguild in user.user_guilds:
+                if not self.check_listtype(userguild, listtype):
                     continue
 
-                if not self.check_server(userserver, server, message.author):
+                if not self.check_guild(userguild, guild, message.author):
                     continue
 
                 if not await self.check_username(user, username):
                     continue
 
                 pieces.append(
-                    await self.get_list_text_piece(user, userserver, server)
+                    await self.get_list_text_piece(user, userguild, guild)
                 )
 
         if not pieces:
@@ -247,37 +247,37 @@ class UserCommands:
 
         return '\u200C\n{}'.format('\n'.join(pieces))
 
-    def check_listtype(self, userserver, listtype):
+    def check_listtype(self, userguild, listtype):
         if listtype == 'admin':
-            return userserver.admin
+            return userguild.admin
 
         if listtype == 'blacklist':
-            return userserver.blacklisted
+            return userguild.blacklisted
 
         if listtype in ('', 'both'):
             return True
 
         raise CommandException('Unrecognised list type `{}`'.format(listtype))
 
-    def check_server(self, userserver, server, member):
-        if server and server.id != userserver.server_did:
+    def check_guild(self, userguild, guild, member):
+        if guild and guild.id != userguild.guild_did:
             return False
 
-        return UserLevel.get(member, userserver.server) >= self.user_level
+        return UserLevel.get(member, userguild.guild) >= self.user_level
 
     async def check_username(self, user, username):
         return username in str(await user.get_user())
 
-    async def get_list_text_piece(self, user, userserver, server):
+    async def get_list_text_piece(self, user, userguild, guild):
         piece = '`{!s}`'.format(await user.get_user())
 
-        if userserver.admin:
+        if userguild.admin:
             piece += ' `admin`'
 
-        if userserver.blacklisted:
+        if userguild.blacklisted:
             piece += ' `blacklisted`'
 
-        if not server:  # user didn't specify a specific server
-            piece = '`{0.server.name}` {1}'.format(userserver, piece)
+        if not guild:  # user didn't specify a guild
+            piece = '`{0.guild.name}` {1}'.format(userguild, piece)
 
         return piece
