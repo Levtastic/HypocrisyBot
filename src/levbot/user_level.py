@@ -41,14 +41,26 @@ class UserLevel(OrderedEnum):
             return cls.global_bot_admin
 
         if isinstance(channel_or_guild, discord.Guild):
-            channel = channel_or_guild.default_channel
-        else:
-            channel = channel_or_guild
+            guild = channel_or_guild
+            return _get_max_userlevel(user, guild, db_user)
+
+        channel = channel_or_guild
 
         if channel and isinstance(channel, PrivateChannel):
             return cls._get_private_level(user, channel)
 
         return cls._get_guild_level(user, channel, db_user)
+
+    @classmethod
+    def _get_max_userlevel(cls, user, guild, db_user):
+        max_userlevel = cls.blacklisted
+
+        for channel in guild.channels:
+            userlevel = _get_guild_level(user, channel, db_user)
+            if userlevel > max_userlevel:
+                max_userlevel = userlevel
+
+        return max_userlevel
 
     @classmethod
     def _get_private_level(cls, user, channel):
