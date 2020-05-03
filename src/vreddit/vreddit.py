@@ -3,10 +3,10 @@ import asyncio
 import aiohttp
 import logging
 
-from discord import Embed, NotFound, Forbidden
+from discord import Embed, NotFound, Forbidden, File
 from .models.vreddit_message import VRedditMessage
 from .reddit_video import RedditVideo, PostError
-from levbot import UserLevel, TypingContext
+from levbot import UserLevel
 
 
 url_chars = r'[a-z0-9\._~%\-\+&\#\?!=\(\)@]'
@@ -92,7 +92,7 @@ class VReddit:
                 logging.info('No video found')
                 return vmessage.delete()
 
-            with TypingContext(smessage.channel):
+            with smessage.channel.typing():
                 filename = await video.get_video_file(
                     max_file_size=7.75 * 1024 * 1024)
                 if not filename:
@@ -103,8 +103,12 @@ class VReddit:
                     # check that nothing's changed since we started
                     return
 
-                dmessage = await self.bot.send_file(
-                    smessage.channel, filename, filename='reddit.mp4')
+                dmessage = await smessage.channel.send(
+                    file=File(
+                        filename,
+                        filename='reddit.mp4'
+                    )
+                )
 
         if vmessage.exists():
             vmessage.dest_message_did = dmessage.id
@@ -112,12 +116,12 @@ class VReddit:
 
             await asyncio.gather(
                 self.add_embed(dmessage, smessage, video),
-                self.bot.add_reaction(dmessage, '❌')
+                dmessage.add_reaction('❌')
             )
 
         else:
             # dang it, link deleted while we're uploading!
-            await self.bot.delete_message(dmessage)
+            await dmessage.delete()
 
     async def get_long_url(self, s):
         url = self.get_url(s)
@@ -184,7 +188,7 @@ class VReddit:
             ' ❌ to delete this message'
         ))
 
-        await self.bot.edit_message(dmessage, embed=embed)
+        await dmessage.edit(embed=embed)
 
     async def on_message_delete(self, smessage):
         if smessage.channel.is_private:

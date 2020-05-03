@@ -30,7 +30,7 @@ class HelpCommands:
             self.get_subcommands_text(command, dispatcher, user_level),
         )
 
-        await self.bot.send_message(message.author, '\n\n'.join(
+        await message.author.send('\n\n'.join(
             piece for piece in help_text_pieces if piece
         ))
 

@@ -89,8 +89,7 @@ class ModelCommands:
                 'One or more required fields were left out of the command'
             )
 
-        await self.bot.send_message(
-            message.channel,
+        await message.channel.send(
             '`{}` `({})` added'.format(
                 model_name,
                 model.id
@@ -137,8 +136,7 @@ class ModelCommands:
 
         model.save()
 
-        await self.bot.send_message(
-            message.channel,
+        await message.channel.send(
             '`{}` `({})` edited'.format(
                 model_name,
                 model.id
@@ -184,8 +182,7 @@ class ModelCommands:
 
         model.delete()
 
-        await self.bot.send_message(
-            message.channel,
+        await message.channel.send(
             '`{}` deleted'.format(model_name)
         )
 
@@ -205,13 +202,11 @@ class ModelCommands:
         models = self.filter_model(model, pairs)
 
         if not models:
-            return await self.bot.send_message(
-                message.channel,
+            return await message.channel.send(
                 'No `{}` records found'.format(model_name)
             )
 
-        await self.bot.send_message(
-            message.channel,
+        await message.channel.send(
             '\u200C\n' + '\n'.join(str(model) for model in models)
         )
 

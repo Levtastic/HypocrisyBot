@@ -117,11 +117,10 @@ class CommandDispatcher:
             await handler.coroutine(*binding.args, **binding.kwargs)
 
         except CommandException as ex:
-            await self._bot.send_message(message.channel, str(ex))
+            await message.channel.send(str(ex))
 
         except BaseException:
-            await self._bot.send_message(
-                message.channel,
+            await message.channel.send(
                 'Oh no, something went horribly wrong trying to complete this'
                 ' command. Please tell the owner of this bot what command you'
                 ' entered and roughly when this happened, and I\'ll get all'

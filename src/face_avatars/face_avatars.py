@@ -3,7 +3,7 @@ import aiohttp
 import random
 import logging
 
-from levbot import UserLevel, TypingContext
+from levbot import UserLevel
 from discord import HTTPException, InvalidArgument
 
 
@@ -65,7 +65,7 @@ class FaceAvatars:
 
     async def set_avatar(self, avatar):
         try:
-            await self.bot.edit_profile(avatar=avatar)
+            await self.bot.user.edit(avatar=avatar)
             return True
 
         except (HTTPException, InvalidArgument) as ex:
@@ -75,11 +75,11 @@ class FaceAvatars:
             return False
 
     async def cmd_refresh_avatar(self, message):
-        with TypingContext(message.channel):
+        with message.channel.typing():
             if await self.get_new_avatar():
                 response = 'Roger that boss, face changed'
 
             else:
                 response = "Sorry boss, can't change my face right now"
 
-        await self.bot.send_message(message.channel, response)
+        await message.channel.send(response)

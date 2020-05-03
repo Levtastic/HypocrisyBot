@@ -8,7 +8,6 @@ from .logging_config import set_up_logging, remove_pushbullet_logger
 from .database import Database
 from .commands import Commands
 from . import user_level
-from . import typing_context
 
 
 class Bot(Client):
@@ -30,7 +29,6 @@ class Bot(Client):
 
         user_level.owner_usernames = settings.get('owner_usernames', [])
         user_level.database = self.database
-        typing_context.bot = self
 
         console_variables['bot'] = self
         ConsoleInput(self, console_variables)
@@ -68,35 +66,3 @@ class Bot(Client):
 
         for handler in self._event_handlers['on_' + event]:
             self.loop.create_task(handler(*args, **kwargs))
-
-    async def send_message(self, destination, content=None, *args, **kwargs):
-        if content and len(str(content)) > self.max_message_len:
-            return await self._split_message(
-                destination, str(content), *args, **kwargs
-            )
-
-        return await super().send_message(
-            destination, content, *args, **kwargs
-        )
-
-    async def _split_message(self, destination, content, *args, **kwargs):
-        clipped, remainder = self._get_split_pieces(content)
-
-        message1 = await self.send_message(
-            destination, clipped, *args, **kwargs
-        )
-        message2 = await self.send_message(
-            destination, remainder, *args, **kwargs
-        )
-
-        return (message1, *message2)
-
-    def _get_split_pieces(self, string):
-        piece = string[:self.max_message_len]
-        if '\n' in piece[-self.newline_search_len:]:
-            piece = piece.rsplit('\n', 1)[0]
-
-        elif ' ' in piece[-self.space_search_len:]:
-            piece = piece.rsplit(' ', 1)[0]
-
-        return piece, string[len(piece):]

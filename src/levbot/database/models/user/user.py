@@ -15,7 +15,7 @@ class User(Model):
             return self._user
 
         except AttributeError:
-            self._user = await self.bot.get_user_info(self.user_did)
+            self._user = await self.bot.fetch_user(self.user_did)
             return self._user
 
     def define_table(self):

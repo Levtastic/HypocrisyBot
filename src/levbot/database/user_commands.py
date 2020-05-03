@@ -71,8 +71,7 @@ class UserCommands:
             userguild.admin = True
             userguild.save()
 
-            return await self.bot.send_message(
-                message.channel,
+            return await message.channel.send(
                 'Admin `{!s}` added to `{}` successfully'.format(
                     duser,
                     guild.name
@@ -83,8 +82,7 @@ class UserCommands:
             userguild.blacklisted = True
             userguild.save()
 
-            return await self.bot.send_message(
-                message.channel,
+            return await message.channel.send(
                 'Blacklist `{!s}` added to `{}` successfully'.format(
                     duser,
                     guild.name
@@ -179,8 +177,7 @@ class UserCommands:
 
             self.clean_up(user, userguild)
 
-            return await self.bot.send_message(
-                message.channel,
+            return await message.channel.send(
                 'Admin `{!s}` removed from `{}` successfully'.format(
                     duser,
                     guild.name
@@ -193,8 +190,7 @@ class UserCommands:
 
             self.clean_up(user, userguild)
 
-            return await self.bot.send_message(
-                message.channel,
+            return await message.channel.send(
                 'Blacklist `{!s}` removed from `{}` successfully'.format(
                     duser,
                     guild.name
@@ -222,7 +218,7 @@ class UserCommands:
         text = await self.get_list_text(users, username, listtype, guild,
                                         message)
 
-        await self.bot.send_message(message.channel, text)
+        await message.channel.send(text)
 
     async def get_list_text(self, users, username, listtype, guild, message):
         pieces = []

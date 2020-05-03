@@ -3,7 +3,7 @@ import logging
 
 from collections import defaultdict
 from datetime import datetime
-from discord import NotFound, Forbidden
+from discord import NotFound, Forbidden, File
 from ...user_level import UserLevel
 
 
@@ -110,8 +110,7 @@ class BotCommands:
         for guild, channel in self.get_text_channels(channel_filter):
             channels[guild].append(channel)
 
-        await self.bot.send_message(
-            message.channel,
+        await message.channel.send(
             self.get_channels_text(channels)
         )
 
@@ -152,8 +151,7 @@ class BotCommands:
         for guild, member in self.get_members(user_filter):
             members[guild].append(member)
 
-        await self.bot.send_message(
-            message.channel,
+        await message.channel.send(
             self.get_users_text(members)
         )
 
@@ -189,8 +187,7 @@ class BotCommands:
                 yield member_text
 
     async def cmd_invite(self, message):
-        await self.bot.send_message(
-            message.author,
+        await message.author.send(
             'Use this invite link to add me to your server: {}'.format(
                 discord.utils.oauth_url(self.bot.user.id)
             )
@@ -198,34 +195,31 @@ class BotCommands:
 
     async def cmd_quit(self, message):
         logging.info(f'Shutdown command received from {message.author}')
-        await self.bot.send_message(message.channel, 'Shutting down.')
+        await message.channel.send('Shutting down.')
         await self.bot.logout()
 
     async def cmd_say(self, message, text):
-        await self.bot.send_message(message.channel, text)
+        await message.channel.send(text)
 
     async def cmd_sayd(self, message, text):
         try:
-            await self.bot.delete_message(message)
+            await message.delete()
             await self.cmd_say(message, text)
 
         except (NotFound, Forbidden):
             pass
 
     async def cmd_backup(self, message):
-        await self.bot.send_file(
-            message.author,
-            self.bot.settings['db_name'],
-            content='BACKUP ' + datetime.now().isoformat(' ')
+        await message.author.send(
+            'BACKUP ' + datetime.now().isoformat(' '),
+            file=File(self.bot.settings['db_name'])
         )
 
     async def cmd_source(self, message):
-        await self.bot.send_message(message.author,
-                                    self.bot.settings['source_url'])
+        await message.author.send(self.bot.settings['source_url'])
 
     async def cmd_donate(self, message):
-        await self.bot.send_message(
-            message.author,
+        await message.author.send(
             self.bot.settings['donate_url'] + (
                 '\n\n'
                 "Donating isn't required to use me, but any money you want to"

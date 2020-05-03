@@ -27,8 +27,7 @@ class VRedditMessage(Model):
             return self._src_message
 
         except AttributeError:
-            self._src_message = await self.bot.get_message(
-                self.get_channel(),
+            self._src_message = await self.get_channel().fetch_message(
                 self.src_message_did
             )
             return self._src_message
@@ -41,8 +40,7 @@ class VRedditMessage(Model):
             return self._dest_message
 
         except AttributeError:
-            self._dest_message = await self.bot.get_message(
-                self.get_channel(),
+            self._dest_message = await self.get_channel().fetch_message(
                 self.dest_message_did
             )
             return self._dest_message
@@ -57,7 +55,7 @@ class VRedditMessage(Model):
         try:
             message = await self.get_dest_message()
             if message:
-                await self.bot.delete_message(message)
+                await message.delete()
 
         except (NotFound, Forbidden):
             pass
