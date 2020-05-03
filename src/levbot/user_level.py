@@ -1,6 +1,6 @@
 import discord
 
-from discord import ChannelType
+from discord import DMChannel
 from discord.abc import PrivateChannel
 from .ordered_enum import OrderedEnum
 
@@ -64,10 +64,16 @@ class UserLevel(OrderedEnum):
 
     @classmethod
     def _get_private_level(cls, user, channel):
+        if isinstance(channel, DMChannel):
+            if user == channel.recipient:
+                return cls.guild_admin
+            else:
+                return cls.no_access
+
         if user not in channel.recipients:
             return cls.no_access
 
-        if channel.type == ChannelType.group and user != channel.owner:
+        if user != channel.owner:
             return cls.user
 
         return cls.guild_admin
