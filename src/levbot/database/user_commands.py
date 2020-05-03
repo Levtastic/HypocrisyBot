@@ -5,7 +5,7 @@ from ..commands import CommandException
 class UserCommands:
     def __init__(self, bot):
         self.bot = bot
-        self.user_level = UserLevel.server_owner
+        self.user_level = UserLevel.guild_owner
 
         self.register()
 

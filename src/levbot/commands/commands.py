@@ -27,7 +27,7 @@ class Commands:
 
     def build_handler(self, command, coroutine, **kwargs):
         defaults = {
-            'user_level': UserLevel.server_bot_admin,
+            'user_level': UserLevel.guild_bot_admin,
             'description': '',
             'syntax': self.get_syntax_for(coroutine, command),
         }

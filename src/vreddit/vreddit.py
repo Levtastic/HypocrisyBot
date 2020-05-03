@@ -209,7 +209,7 @@ class VReddit:
         vmessage = self.get_vmessage(reaction.message, False)
 
         if UserLevel.get(user, reaction.message.channel) \
-           >= UserLevel.server_bot_admin:
+           >= UserLevel.guild_bot_admin:
             vmessage.delete()
             return
 

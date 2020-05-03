@@ -9,16 +9,16 @@ database = None
 
 
 class UserLevel(OrderedEnum):
-    bot_owner          = 7
-    global_bot_admin   = 6
-    server_owner       = 5
-    server_admin       = 4
-    server_bot_admin   = 3
-    server_user        = 2
-    user               = 1
-    no_access          = 0
-    server_blacklisted = -1
-    blacklisted        = -2
+    bot_owner         = 7
+    global_bot_admin  = 6
+    guild_owner       = 5
+    guild_admin       = 4
+    guild_bot_admin   = 3
+    guild_user        = 2
+    user              = 1
+    no_access         = 0
+    guild_blacklisted = -1
+    blacklisted       = -2
 
     def __bool__(self):
         return self.value > 0
@@ -57,7 +57,7 @@ class UserLevel(OrderedEnum):
         if channel.type == ChannelType.group and user != channel.owner:
             return cls.user
 
-        return cls.server_admin
+        return cls.guild_admin
 
     @classmethod
     def _get_guild_level(cls, user, channel, db_user):
@@ -67,15 +67,15 @@ class UserLevel(OrderedEnum):
             return cls.no_access
 
         if channel and member == channel.guild.owner:
-            return cls.server_owner
+            return cls.guild_owner
 
         if db_user and db_user.is_blacklisted(channel.guild):
-            return cls.server_blacklisted
+            return cls.guild_blacklisted
 
         if channel and channel.permissions_for(member).manage_channels:
-            return cls.server_admin
+            return cls.guild_admin
 
         if channel and db_user and db_user.is_admin(channel.guild):
-            return cls.server_bot_admin
+            return cls.guild_bot_admin
 
-        return cls.server_user
+        return cls.guild_user

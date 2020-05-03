@@ -40,7 +40,7 @@ class BotCommands:
         commands.register_handler(
             'say',
             self.cmd_say,
-            user_level=UserLevel.server_bot_admin,
+            user_level=UserLevel.guild_bot_admin,
             description=(
                 'Replies in the same location as the command, with the same'
                 ' message content as the command (not including the word'
@@ -50,7 +50,7 @@ class BotCommands:
         commands.register_handler(
             'sayd',
             self.cmd_sayd,
-            user_level=UserLevel.server_bot_admin,
+            user_level=UserLevel.guild_bot_admin,
             description=(
                 'Deletes the message containing the command and then replies'
                 ' in the same location as the command, with the same message'
@@ -62,7 +62,7 @@ class BotCommands:
         commands.register_handler(
             'backup',
             self.cmd_backup,
-            user_level=UserLevel.server_bot_admin,
+            user_level=UserLevel.guild_bot_admin,
             description=(
                 'Replies in private with the current timestamp (in'
                 ' international ISO format) and the current database file'
