@@ -2,7 +2,7 @@ import sys
 import traceback
 import asyncio
 
-from concurrent.futures import CancelledError
+from concurrent.futures import thread, CancelledError
 
 
 class ConsoleInput:
@@ -27,14 +27,14 @@ class ConsoleInput:
 
         def _python_exit():
             concurrent.futures.thread._shutdown = True
-            items = list(concurrent.futures.thread._threads_queues.items())
+            items = list(thread._threads_queues.items())
             for t, q in items:
                 q.put(None)
             for t, q in items:
                 if not t.daemon:
                     t.join()
 
-        atexit.unregister(concurrent.futures.thread._python_exit)
+        atexit.unregister(thread._python_exit)
         atexit.register(_python_exit)
 
     async def loop(self):
