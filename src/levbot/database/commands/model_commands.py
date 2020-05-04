@@ -1,7 +1,7 @@
 from functools import partial
 from sqlite3 import IntegrityError
-from ..user_level import UserLevel
-from ..commands import CommandException
+from ...user_level import UserLevel
+from ...commands import CommandException
 
 
 class ModelCommands:

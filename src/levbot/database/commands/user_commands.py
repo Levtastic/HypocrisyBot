@@ -1,6 +1,6 @@
 from discord.abc import PrivateChannel
-from ..user_level import UserLevel
-from ..commands import CommandException
+from ...user_level import UserLevel
+from ...commands import CommandException
 
 
 class UserCommands:

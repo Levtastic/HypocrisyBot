@@ -2,8 +2,8 @@ import sqlite3
 
 from contextlib import closing
 from .models import CommandAlias, User, UserGuild
-from .model_commands import ModelCommands
-from .user_commands import UserCommands
+from .commands.model_commands import ModelCommands
+from .commands.user_commands import UserCommands
 
 
 class Database:
