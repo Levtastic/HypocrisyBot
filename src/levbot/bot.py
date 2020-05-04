@@ -3,11 +3,12 @@ import logging
 
 from collections import defaultdict
 from discord import Client
+from discord.abc import Messageable
 from .console_input import ConsoleInput
 from .logging_config import set_up_logging, remove_pushbullet_logger
 from .database import Database
 from .commands import Commands
-from . import user_level
+from . import user_level, send_splitter
 
 
 class Bot(Client):
@@ -19,10 +20,6 @@ class Bot(Client):
         self.bot_token = settings.pop('bot_token')
         self.pushbullet_token = settings.get('pushbullet_token', None)
 
-        self.max_message_len = 2000
-        self.newline_search_len = 200
-        self.space_search_len = 100
-
         self._event_handlers = defaultdict(list)
         self.commands = Commands(self)
         self.database = Database(self, settings.get('db_name', 'levbot.db'))
@@ -32,6 +29,8 @@ class Bot(Client):
 
         console_variables['bot'] = self
         ConsoleInput(self, console_variables)
+
+        send_splitter.wrap(Messageable)
 
     def run(self, *args, **kwargs):
         set_up_logging(self.pushbullet_token)
