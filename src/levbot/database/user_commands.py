@@ -176,8 +176,6 @@ class UserCommands:
             userguild.admin = False
             userguild.save()
 
-            self.clean_up(user, userguild)
-
             return await message.channel.send(
                 'Admin `{!s}` removed from `{}` successfully'.format(
                     duser,
@@ -189,8 +187,6 @@ class UserCommands:
             userguild.blacklisted = False
             userguild.save()
 
-            self.clean_up(user, userguild)
-
             return await message.channel.send(
                 'Blacklist `{!s}` removed from `{}` successfully'.format(
                     duser,
@@ -199,13 +195,6 @@ class UserCommands:
             )
 
         raise CommandException('Unknown user type `{}`'.format(usertype))
-
-    def clean_up(self, user, userguild):
-        if not userguild.admin and not userguild.blacklisted:
-            userguild.delete()
-
-        if not user.user_guilds:
-            user.delete()
 
     async def cmd_list_users(self, message, listtype='both', guildname='',
                              username=''):
