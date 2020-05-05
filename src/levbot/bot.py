@@ -18,7 +18,8 @@ class Bot(Client):
         self.settings = settings
 
         self.bot_token = settings.pop('bot_token')
-        self.pushbullet_token = settings.get('pushbullet_token', None)
+
+        self.logger = set_up_logging(settings.get('pushbullet_token', None))
 
         self._event_handlers = defaultdict(list)
         self.commands = Commands(self)
@@ -32,10 +33,12 @@ class Bot(Client):
 
         send_splitter.wrap(Messageable)
 
-    def run(self, *args, **kwargs):
-        set_up_logging(self.pushbullet_token)
-        super().run(self.bot_token, *args, **kwargs)
+    def close(self):
         remove_pushbullet_logger()
+        super().close()
+
+    def run(self, *args, **kwargs):
+        super().run(self.bot_token, *args, **kwargs)
 
     def event(self, event_name=''):
         def decorator_event(coro):

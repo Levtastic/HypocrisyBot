@@ -1,4 +1,5 @@
 import sqlite3
+import logging
 
 from contextlib import closing
 from .models import CommandAlias, User, UserGuild
@@ -27,6 +28,16 @@ class Database:
             type(self).__name__,
             name
         ))
+
+    def force_update_model_tables(self):
+        logging.info('Updating table layouts.')
+
+        for model_name in self.models.keys():
+            logging.info(f' - {model_name}...')
+            model = self.get_initialised_model(model_name)
+            model._update_table()
+
+        logging.info('Tables updated.')
 
     def add_models(self, *model_classes):
         for cls in model_classes:
