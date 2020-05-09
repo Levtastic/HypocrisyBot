@@ -2,6 +2,7 @@ import re
 import asyncio
 import aiohttp
 import logging
+import tempfile
 
 from discord import Embed, NotFound, Forbidden, File
 from discord.abc import PrivateChannel
@@ -22,6 +23,9 @@ class VReddit:
     def __init__(self, bot):
         self.bot = bot
         self.settings = bot.settings.vreddit
+        self.settings.temp_directory = self.settings.temp_directory.format(
+            sys_temp=tempfile.gettempdir()
+        )
 
         bot.database.add_models(VRedditMessage)
 

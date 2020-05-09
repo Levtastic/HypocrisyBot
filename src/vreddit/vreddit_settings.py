@@ -6,4 +6,4 @@ def get_category():
 
 
 class VRedditCategory(settings.Category):
-    temp_directory = 'temp'
+    temp_directory = '{sys_temp}/vreddit'
