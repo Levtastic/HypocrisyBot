@@ -33,9 +33,9 @@ class Bot(Client):
 
         send_splitter.wrap(Messageable)
 
-    def close(self):
+    async def close(self):
         remove_pushbullet_logger()
-        super().close()
+        await super().close()
 
     def run(self, *args, **kwargs):
         super().run(self.bot_token, *args, **kwargs)
