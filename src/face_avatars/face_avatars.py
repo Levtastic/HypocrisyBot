@@ -8,9 +8,9 @@ from discord import HTTPException, InvalidArgument
 
 
 class FaceAvatars:
-    def __init__(self, bot, image_generator_url):
+    def __init__(self, bot):
         self.bot = bot
-        self.url = image_generator_url
+        self.settings = bot.settings.avatar_generator
 
         bot.commands.register_handler(
             'refresh avatar',
@@ -55,10 +55,10 @@ class FaceAvatars:
 
     async def get_face_image(self):
         async with aiohttp.ClientSession() as session:
-            async with session.get(self.url) as resp:
+            async with session.get(self.settings.url) as resp:
                 if resp.status != 200:
-                    logging.warning(
-                        f'Received status {resp.status} from {self.url}')
+                    logging.warning(f'Received status {resp.status}'
+                                    f' from {self.settings.url}')
                     return False
 
                 return await resp.read()

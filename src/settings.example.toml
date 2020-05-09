@@ -1,0 +1,22 @@
+# Rename this file to `settings.toml` to use it
+
+[bot]
+    [bot.main]
+        # This setting has no default and must be set
+        token = 'token'
+
+        #db_name = 'levbot.db'
+        #owner_usernames = ['name#1234']
+        #offer_invite_link = False
+        #source_url = 'http://my-source-code.example/'
+        #donate_url = 'http://go-here-to-donate.example/donate/'
+
+    [bot.logs]
+        #directory = 'logs'
+        #pushbullet_token = 'token'
+
+[avatar-generator]
+    #url = 'http://link-to-image.example/img.png'
+
+[vreddit]
+    #temp_directory = 'temp'

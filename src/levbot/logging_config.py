@@ -1,12 +1,11 @@
 import os
 import logging
-import settings
 
 from datetime import datetime
 from .pushbullet_logging import PushbulletHandler
 
 
-def set_up_logging(pushbullet_token=None):
+def set_up_logging(settings):
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter(
@@ -14,13 +13,13 @@ def set_up_logging(pushbullet_token=None):
         datefmt='%Y-%m-%d %H:%M:%S'
     )
 
-    add_file_logger(logger, formatter)
+    add_file_logger(logger, formatter, settings)
     add_console_logger(logger, formatter)
-    add_pushbullet_logger(logger, formatter, pushbullet_token)
+    add_pushbullet_logger(logger, formatter, settings)
 
 
-def add_file_logger(logger, formatter):
-    if not settings.log_directory:
+def add_file_logger(logger, formatter, settings):
+    if not settings.directory:
         return None
 
     os.makedirs(settings.log_directory, exist_ok=True)
@@ -45,12 +44,12 @@ def add_console_logger(logger, formatter):
     return streamhandler
 
 
-def add_pushbullet_logger(logger, formatter, pushbullet_token):
-    if not pushbullet_token:
+def add_pushbullet_logger(logger, formatter, settings):
+    if not settings.pushbullet_token:
         return None
 
     pushbullethandler = PushbulletHandler(
-        access_token=pushbullet_token
+        access_token=settings.pushbullet_token
     )
     pushbullethandler.setLevel(logging.ERROR)
     pushbullethandler.setFormatter(formatter)

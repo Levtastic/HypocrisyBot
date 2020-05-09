@@ -1,5 +1,5 @@
 __pycache__/
 logs/
 temp/
-settings.py
+settings.toml
 levbot.db

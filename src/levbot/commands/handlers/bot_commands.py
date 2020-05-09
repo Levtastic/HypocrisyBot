@@ -72,7 +72,7 @@ class BotCommands:
             )
         )
 
-        if self.bot.settings['offer_invite_link']:
+        if self.bot.main_settings.offer_invite_link:
             commands.register_handler(
                 'invite',
                 self.cmd_invite,
@@ -82,7 +82,7 @@ class BotCommands:
                     ' bot to your server'
                 )
             )
-        if self.bot.settings['source_url']:
+        if self.bot.main_settings.source_url:
             commands.register_handler(
                 'source',
                 self.cmd_source,
@@ -92,7 +92,7 @@ class BotCommands:
                 )
             )
 
-        if self.bot.settings['donate_url']:
+        if self.bot.main_settings.donate_url:
             commands.register_handler(
                 'donate',
                 self.cmd_donate,
@@ -212,15 +212,15 @@ class BotCommands:
     async def cmd_backup(self, message):
         await message.author.send(
             'BACKUP ' + datetime.now().isoformat(' '),
-            file=File(self.bot.settings['db_name'])
+            file=File(self.bot.main_settings.db_name)
         )
 
     async def cmd_source(self, message):
-        await message.author.send(self.bot.settings['source_url'])
+        await message.author.send(self.bot.main_settings.source_url)
 
     async def cmd_donate(self, message):
         await message.author.send(
-            self.bot.settings['donate_url'] + (
+            self.bot.main_settings.donate_url + (
                 '\n\n'
                 "Donating isn't required to use me, but any money you want to"
                 ' send will be very much appreciated by my dad who spent many'

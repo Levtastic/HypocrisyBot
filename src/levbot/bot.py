@@ -16,16 +16,15 @@ class Bot(Client):
         super().__init__()
 
         self.settings = settings
+        self.main_settings = settings.bot.main
 
-        self.bot_token = settings.pop('bot_token')
-
-        self.logger = set_up_logging(settings.get('pushbullet_token', None))
+        self.logger = set_up_logging(settings.bot.logs)
 
         self._event_handlers = defaultdict(list)
         self.commands = Commands(self)
-        self.database = Database(self, settings.get('db_name', 'levbot.db'))
+        self.database = Database(self, self.main_settings.db_name)
 
-        user_level.owner_usernames = settings.get('owner_usernames', [])
+        user_level.owner_usernames = self.main_settings.owner_usernames
         user_level.database = self.database
 
         console_variables['bot'] = self
@@ -38,7 +37,7 @@ class Bot(Client):
         await super().close()
 
     def run(self, *args, **kwargs):
-        super().run(self.bot_token, *args, **kwargs)
+        super().run(self.main_settings.token, *args, **kwargs)
 
     def event(self, event_name=''):
         def decorator_event(coro):

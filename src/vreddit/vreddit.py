@@ -19,9 +19,9 @@ url_pattern = re.compile(r'(?<!<)https?://(?:(?:\S*\.)?reddit\.com/r/' +
 
 
 class VReddit:
-    def __init__(self, bot, temp_directory):
+    def __init__(self, bot):
         self.bot = bot
-        self.temp_directory = temp_directory
+        self.settings = bot.settings.vreddit
 
         bot.database.add_models(VRedditMessage)
 
@@ -86,7 +86,7 @@ class VReddit:
         vmessage.src_message_did = smessage.id
         vmessage.save()
 
-        async with RedditVideo(url, self.temp_directory) as video:
+        async with RedditVideo(url, self.settings.temp_directory) as video:
             try:
                 await video.populate()
             except PostError:

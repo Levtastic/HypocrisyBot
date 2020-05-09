@@ -1,25 +1,32 @@
 import sys
 import logging
-import settings
 
 from levbot import Bot
-from vreddit.vreddit import VReddit
-from face_avatars.face_avatars import FaceAvatars
+from levbot.settings import Loader
+from vreddit import VReddit, vreddit_settings
+from face_avatars import FaceAvatars, avatar_settings
 
 
 def get_bot():
-    dsettings = {v: getattr(settings, v) for v in dir(settings) if v[0] != '_'}
+    settings = get_settings()
 
-    bot = Bot(dsettings)
+    bot = Bot(settings)
 
     @bot.event()
     async def on_ready():
         print(f'Connected as {bot.user}')
 
-    VReddit(bot, dsettings['temp_directory'])
-    FaceAvatars(bot, dsettings['avatar_generator_url'])
+    VReddit(bot)
+    FaceAvatars(bot)
 
     return bot
+
+
+def get_settings():
+    loader = Loader('settings.toml')
+    loader.add_category(*vreddit_settings.get_category())
+    loader.add_category(*avatar_settings.get_category())
+    return loader.load()
 
 
 if __name__ == '__main__':
