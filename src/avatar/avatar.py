@@ -7,7 +7,7 @@ from levbot import UserLevel
 from discord import HTTPException, InvalidArgument
 
 
-class FaceAvatars:
+class Avatar:
     def __init__(self, bot):
         self.bot = bot
         self.settings = bot.settings.avatar_generator

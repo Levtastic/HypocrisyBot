@@ -4,7 +4,7 @@ import logging
 from levbot import Bot
 from levbot.settings import Loader
 from vreddit import VReddit, vreddit_settings
-from face_avatars import FaceAvatars, avatar_settings
+from avatar import Avatar, avatar_settings
 
 
 def get_bot():
@@ -17,7 +17,7 @@ def get_bot():
         print(f'Connected as {bot.user}')
 
     VReddit(bot)
-    FaceAvatars(bot)
+    Avatar(bot)
 
     return bot
 
