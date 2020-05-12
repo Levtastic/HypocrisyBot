@@ -29,11 +29,14 @@ class RedditVideo:
 
     async def __aenter__(self):
         os.makedirs(self.working_dir, exist_ok=True)
+        self.http_session = await aiohttp.ClientSession().__aenter__()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        return await self.loop.run_in_executor(
-            None, rmtree, self.working_dir)
+    async def __aexit__(self, *args, **kwargs):
+        return await asyncio.gather(
+            self.loop.run_in_executor(None, rmtree, self.working_dir),
+            self.http_session.__aexit__(*args, **kwargs)
+        )
 
     @property
     def is_populated(self):
@@ -67,9 +70,8 @@ class RedditVideo:
         if self.is_populated:
             return
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(self.url + '.json') as resp:
-                data = await resp.json()
+        async with self.http_session.get(self.url + '.json') as resp:
+            data = await resp.json()
 
         main_data = data[0]['data']['children'][0]['data']
 
@@ -91,18 +93,17 @@ class RedditVideo:
 
     async def download_file(self, filename, url, chunk_size=1024):
         filename = os.path.join(self.working_dir, filename)
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
-                if resp.status != 200:
-                    return ''
+        async with self.http_session.get(url) as resp:
+            if resp.status != 200:
+                return ''
 
-                with open(filename, 'wb') as file:
-                    while True:
-                        chunk = await resp.content.read(chunk_size)
-                        if not chunk:
-                            return filename
+            with open(filename, 'wb') as file:
+                while True:
+                    chunk = await resp.content.read(chunk_size)
+                    if not chunk:
+                        return filename
 
-                        file.write(chunk)
+                    file.write(chunk)
 
     async def merge(self, video_file, audio_file):
         result_file = os.path.join(os.path.dirname(video_file), 'm.mp4')
