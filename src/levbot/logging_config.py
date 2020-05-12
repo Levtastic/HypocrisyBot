@@ -22,9 +22,9 @@ def add_file_logger(logger, formatter, settings):
     if not settings.directory:
         return None
 
-    os.makedirs(settings.log_directory, exist_ok=True)
+    os.makedirs(settings.directory, exist_ok=True)
     filename = '{}/{}.log'.format(
-        settings.log_directory,
+        settings.directory,
         datetime.now().strftime('%Y-%m-%d %H-%M-%S')
     )
     filehandler = logging.FileHandler(filename)
