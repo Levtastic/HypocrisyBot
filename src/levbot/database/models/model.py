@@ -1,10 +1,11 @@
+import abc
 import inspect
 import logging
 
 from types import MappingProxyType
 
 
-class Model(object):
+class Model(abc.ABC):
     # These attributes are tracked at the class-level, not the object-level
     _table_exists = False
     _table_up_to_date = False
@@ -64,6 +65,7 @@ class Model(object):
     def _init_table(self):
         self._table = self.define_table()
 
+    @abc.abstractmethod
     def define_table(self):
         raise NotImplementedError('Child model must override define_table()')
 
@@ -78,6 +80,7 @@ class Model(object):
 
         self._fields = MappingProxyType(fields)
 
+    @abc.abstractmethod
     def define_fields(self):
         raise NotImplementedError('Child model must override define_fields()')
 
