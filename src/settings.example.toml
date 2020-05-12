@@ -7,7 +7,7 @@
 
         #db_name = 'levbot.db'
         #owner_usernames = ['name#1234']
-        #offer_invite_link = False
+        #offer_invite_link = False  # allow people to invite the bot to their server
         #source_url = 'http://my-source-code.example/'
         #donate_url = 'http://go-here-to-donate.example/donate/'
 
@@ -15,8 +15,30 @@
         #directory = 'logs'
         #pushbullet_token = 'token'
 
-[avatar-generator]
-    #url = 'http://link-to-image.example/img.png'
+    [bot.avatar]
+        # Avatar is fetched on connect and optionally using a command or at random times
+        # Available format parameters:
+        #    {user_id} - Use this to make the avatar unique to this bot
+        #    {random_seed} - Use this to make the avatar different every time
+
+        # Leave no URL set to disable automatic avatar functionality
+
+        # Robot
+        #url = 'https://robohash.org/{user_id}.png?set=set1&size=512x512'
+
+        # Kittycat
+        #url = 'https://robohash.org/{user_id}.png?set=set4&size=512x512'
+
+        # Leave unset to disable refresh command
+        #refresh_command = 'refresh avatar'
+
+        # Min/max number of minutes before refreshing
+        # random value between these will be chosen
+        # Leave unset to disable random change behaviour
+        # If only min is set, the avatar will always be freshed after that many minutes
+        # If set, will also refresh avatar on first connection
+        #random_change_min = 180
+        #random_change_max = 1800
 
 [vreddit]
     # Available format parameters:

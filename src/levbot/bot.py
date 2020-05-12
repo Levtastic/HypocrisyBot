@@ -8,6 +8,7 @@ from .console_input import ConsoleInput
 from .logging_config import set_up_logging, remove_pushbullet_logger
 from .database import Database
 from .commands import Commands
+from .avatar_manager import AvatarManager
 from . import user_level, send_splitter
 
 
@@ -23,6 +24,7 @@ class Bot(Client):
         self._event_handlers = defaultdict(list)
         self.commands = Commands(self)
         self.database = Database(self, self.main_settings.db_name)
+        self.avatar_manager = AvatarManager(self, settings.bot.avatar)
 
         user_level.owner_usernames = self.main_settings.owner_usernames
         user_level.database = self.database

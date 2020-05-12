@@ -136,9 +136,17 @@ class BotLogsCategory(Category):
     pushbullet_token = ''
 
 
+class BotAvatarCategory(Category):
+    url = ''
+    refresh_command = ''
+    random_change_min = 0
+    random_change_max = 0
+
+
 class BotCategory(Category):
     main = BotMainCategory()
     logs = BotLogsCategory()
+    avatar = BotAvatarCategory()
 
 
 class SettingsError(Exception):
