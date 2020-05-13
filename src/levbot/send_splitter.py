@@ -1,51 +1,59 @@
 def wrap(cls, max_message_len=2000, newline_search_len=200,
          space_search_len=100):
+    cls._ss_message_splitter = MessageSplitter(
+        max_message_len, newline_search_len, space_search_len
+    )
     cls._ss_orig_send = cls.send
     cls.send = send
-    cls._ss_max_message_len = max_message_len
-    cls._ss_newline_search_len = newline_search_len
-    cls._ss_space_search_len = space_search_len
-    cls._ss_split_message = _ss_split_message
-    cls._ss_get_split_pieces = _ss_get_split_pieces
 
 
 def unwrap(cls):
     cls.send = cls._ss_orig_send
-    del(_ss_max_message_len)
-    del(_ss_newline_search_len)
-    del(_ss_space_search_len)
-    del(cls._ss_orig_send)
-    del(cls._ss_split_message)
-    del(cls._ss_get_split_pieces)
+    del cls._ss_orig_send
+    del cls._ss_message_splitter
 
 
 async def send(self, content=None, *args, **kwargs):
-    if content and len(str(content)) > self._ss_max_message_len:
-        return await self._ss_split_message(
-            str(content), *args, **kwargs
-        )
+    results = []
 
-    return await self._ss_orig_send(content, *args, **kwargs)
+    for piece in self._ss_message_splitter.split(content):
+        results.append(await self._ss_orig_send(piece, *args, **kwargs))
 
+    if len(results) == 1:  # this will usually be the case
+        return results[0]
 
-async def _ss_split_message(self, content, *args, **kwargs):
-    clipped, remainder = self._ss_get_split_pieces(content)
-
-    message1 = await self._ss_orig_send(clipped, *args, **kwargs)
-    message2 = await self._ss_orig_send(remainder, *args, **kwargs)
-
-    if not isinstance(message2, tuple):
-        message2 = (message2, )
-
-    return (message1, *message2)
+    return results
 
 
-def _ss_get_split_pieces(self, string):
-    piece = string[:self._ss_max_message_len]
-    if '\n' in piece[-self._ss_newline_search_len:]:
-        piece = piece.rsplit('\n', 1)[0]
+class MessageSplitter:
+    def __init__(self, max_message_len, newline_search_len, space_search_len):
+        self.max_message_len = max_message_len
+        self.newline_search_len = newline_search_len
+        self.space_search_len = space_search_len
 
-    elif ' ' in piece[-self._ss_space_search_len:]:
-        piece = piece.rsplit(' ', 1)[0]
+    def split(self, string):
+        return self.flatten(self.get_pieces(str(string)))
 
-    return piece, string[len(piece):]
+    def get_pieces(self, string):
+        if len(string) < self.max_message_len:
+            return (string, )
+
+        piece = string[:self.max_message_len]
+        if '\n' in piece[-self.newline_search_len:]:
+            piece = piece.rsplit('\n', 1)[0]
+
+        elif ' ' in piece[-self.space_search_len:]:
+            piece = piece.rsplit(' ', 1)[0]
+
+        return (piece, self.get_pieces(string[len(piece):]))
+
+    def flatten(self, tpl):
+        return tuple(self.flattengen(tpl))
+
+    def flattengen(self, tpl):
+        for item in tpl:
+            if isinstance(item, tuple):
+                yield from self.flattengen(item)
+
+            else:
+                yield item
