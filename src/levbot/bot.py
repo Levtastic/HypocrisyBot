@@ -32,7 +32,8 @@ class Bot(Client):
         console_variables['bot'] = self
         ConsoleInput(self, console_variables)
 
-        send_splitter.wrap(Messageable)
+        if settings.bot.message_splitting.enabled:
+            send_splitter.wrap(Messageable, settings.bot.message_splitting)
 
     async def close(self):
         remove_pushbullet_logger()

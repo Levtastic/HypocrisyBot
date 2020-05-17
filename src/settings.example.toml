@@ -45,6 +45,22 @@
         #random_change_min = 180
         #random_change_max = 1800
 
+    [bot.message_splitting]
+        # The bot automatically splits messages too long to send into smaller messages
+        # If this is disabled, the bot will instead throw an error when attempting to send
+        #enabled = true
+
+        # If the bot attempts to send a message longer than this, it will be split
+        #max_message_len = 2000
+
+        # The bot will search up to this many characters before the length limit for a newline
+        # and will split there if possible
+        #newline_search_len = 200
+
+        # If the bot fails to find a newline, it will then search this many characters for
+        # a space, and split there instead
+        #space_search_len = 100
+
 [vreddit]
     # Available format parameters:
     #    {sys_temp} - System-defined temp directory

@@ -149,11 +149,18 @@ class BotAvatarCategory(Category):
     random_change_min = 0
     random_change_max = 0
 
+class BotMessageSplittingCategory(Category):
+    enabled = True
+    max_message_len = 2000
+    newline_search_len = 200
+    space_search_len = 100
+
 
 class BotCategory(Category):
     main = BotMainCategory()
     logs = BotLogsCategory()
     avatar = BotAvatarCategory()
+    message_splitting = BotMessageSplittingCategory()
 
 
 class SettingsError(Exception):

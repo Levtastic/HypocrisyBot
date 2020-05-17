@@ -1,8 +1,5 @@
-def wrap(cls, max_message_len=2000, newline_search_len=200,
-         space_search_len=100):
-    cls._ss_message_splitter = MessageSplitter(
-        max_message_len, newline_search_len, space_search_len
-    )
+def wrap(cls, settings):
+    cls._ss_message_splitter = MessageSplitter(settings)
     cls._ss_orig_send = cls.send
     cls.send = send
 
@@ -26,10 +23,10 @@ async def send(self, content=None, *args, **kwargs):
 
 
 class MessageSplitter:
-    def __init__(self, max_message_len, newline_search_len, space_search_len):
-        self.max_message_len = max_message_len
-        self.newline_search_len = newline_search_len
-        self.space_search_len = space_search_len
+    def __init__(self, settings):
+        self.max_message_len = settings.max_message_len
+        self.newline_search_len = settings.newline_search_len
+        self.space_search_len = settings.space_search_len
 
     def split(self, string):
         return self.flatten(self.get_pieces(str(string)))
