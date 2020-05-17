@@ -15,6 +15,11 @@
         #directory = 'logs'
         #pushbullet_token = 'token'
 
+        [bot.logs.levels]
+            #file = 'INFO'
+            #console = 'ERROR'
+            #pushbullet = 'ERROR'
+
     [bot.avatar]
         # Avatar is fetched on connect and optionally using a command or at random times
         # Available format parameters:

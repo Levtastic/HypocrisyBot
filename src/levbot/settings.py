@@ -131,9 +131,16 @@ class BotMainCategory(Category):
     donate_url = ''
 
 
+class BotLogLevelsCategory(Category):
+    file = 'INFO'
+    console = 'ERROR'
+    pushbullet = 'ERROR'
+
+
 class BotLogsCategory(Category):
     directory = ''
     pushbullet_token = ''
+    levels = BotLogLevelsCategory()
 
 
 class BotAvatarCategory(Category):
