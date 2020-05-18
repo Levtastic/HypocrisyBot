@@ -149,6 +149,7 @@ class BotAvatarCategory(Category):
     random_change_min = 0
     random_change_max = 0
 
+
 class BotMessageSplittingCategory(Category):
     enabled = True
     max_message_len = 2000
