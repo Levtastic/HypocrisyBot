@@ -79,7 +79,10 @@ class Loader:
             value = category_dict.pop(setting)
             value_type = type(value)
 
-            if value_type is not setting_type:
+            if value_type is int and setting_type is float:
+                value = float(value)
+
+            elif value_type is not setting_type:
                 raise SettingsTypeError(f'Setting `{prefix}{name}:{setting}`'
                                         f' must be of type `{setting_type}`'
                                         f' but was `{value_type}` instead.')
