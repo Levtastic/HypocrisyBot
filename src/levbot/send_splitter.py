@@ -32,7 +32,7 @@ class MessageSplitter:
         return self.flatten(self.get_pieces(str(string)))
 
     def get_pieces(self, string):
-        if len(string) < self.max_message_len:
+        if len(string) <= self.max_message_len:
             return (string, )
 
         piece = string[:self.max_message_len]
