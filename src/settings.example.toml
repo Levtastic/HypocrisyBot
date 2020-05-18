@@ -41,7 +41,6 @@
         # random value between these will be chosen
         # Leave unset to disable random change behaviour
         # If only min is set, the avatar will always be freshed after that many minutes
-        # If set, will also refresh avatar on first connection
         #random_change_min = 180
         #random_change_max = 1800
 
