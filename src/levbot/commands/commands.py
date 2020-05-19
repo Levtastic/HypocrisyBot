@@ -29,7 +29,7 @@ class Commands:
     def build_handler(self, command, coroutine, **kwargs):
         defaults = {
             'user_level': UserLevel.guild_bot_admin,
-            'description': '',
+            'description': inspect.getdoc(coroutine) or '',
             'syntax': self.get_syntax_for(coroutine, command),
         }
 

@@ -16,95 +16,57 @@ class BotCommands:
         commands.register_handler(
             'list all channels',
             self.cmd_list_all_channels,
-            user_level=UserLevel.global_bot_admin,
-            description=(
-                'Lists channels the bot can currently see'
-            )
+            user_level=UserLevel.global_bot_admin
         )
         commands.register_handler(
             'list all users',
             self.cmd_list_all_users,
-            user_level=UserLevel.global_bot_admin,
-            description=(
-                'Lists users the bot can currently see'
-            )
+            user_level=UserLevel.global_bot_admin
         )
         commands.register_handler(
             'quit',
             self.cmd_quit,
-            user_level=UserLevel.bot_owner,
-            description=(
-                'Immediately shuts down the bot'
-            )
+            user_level=UserLevel.bot_owner
         )
         commands.register_handler(
             'say',
             self.cmd_say,
-            user_level=UserLevel.guild_bot_admin,
-            description=(
-                'Replies in the same location as the command, with the same'
-                ' message content as the command (not including the word'
-                ' "say")'
-            )
+            user_level=UserLevel.guild_bot_admin
         )
         commands.register_handler(
             'sayd',
             self.cmd_sayd,
-            user_level=UserLevel.guild_bot_admin,
-            description=(
-                'Deletes the message containing the command and then replies'
-                ' in the same location as the command, with the same message'
-                ' content as the command (not including the word "sayd")\n'
-                'This command does nothing if the bot doesn\'t have permission'
-                ' to delete messages'
-            )
+            user_level=UserLevel.guild_bot_admin
         )
         commands.register_handler(
             'backup',
             self.cmd_backup,
-            user_level=UserLevel.guild_bot_admin,
-            description=(
-                'Replies in private with the current timestamp (in'
-                ' international ISO format) and the current database file'
-                ' attached. Changes to the database made in the last second'
-                ' may not be reflected in the file, as they may not have'
-                ' been committed yet.'
-            )
+            user_level=UserLevel.guild_bot_admin
         )
 
         if self.bot.main_settings.offer_invite_link:
             commands.register_handler(
                 'invite',
                 self.cmd_invite,
-                user_level=UserLevel.user,
-                description=(
-                    'Sends a link in private that can be used to invite the'
-                    ' bot to your server'
-                )
+                user_level=UserLevel.user
             )
         if self.bot.main_settings.source_url:
             commands.register_handler(
                 'source',
                 self.cmd_source,
-                user_level=UserLevel.user,
-                description=(
-                    'Sends a link in private to view the bot source code'
-                )
+                user_level=UserLevel.user
             )
 
         if self.bot.main_settings.donate_url:
             commands.register_handler(
                 'donate',
                 self.cmd_donate,
-                user_level=UserLevel.user,
-                description=(
-                    'If you want to buy my dad a drink, I\'ll send you a'
-                    ' paypal donate link and you can tell him how much you'
-                    ' appreciate me!'
-                )
+                user_level=UserLevel.user
             )
 
     async def cmd_list_all_channels(self, message, channel_filter=''):
+        """Lists channels the bot can currently see"""
+
         channels = defaultdict(list)
 
         for guild, channel in self.get_text_channels(channel_filter):
@@ -146,6 +108,8 @@ class BotCommands:
                 yield channel_text
 
     async def cmd_list_all_users(self, message, user_filter=''):
+        """Lists users the bot can currently see"""
+
         members = defaultdict(list)
 
         for guild, member in self.get_members(user_filter):
@@ -187,6 +151,8 @@ class BotCommands:
                 yield member_text
 
     async def cmd_invite(self, message):
+        """Sends a link in a PM for inviting the bot to your server"""
+
         await message.author.send(
             'Use this invite link to add me to your server: {}'.format(
                 discord.utils.oauth_url(self.bot.user.id)
@@ -194,14 +160,27 @@ class BotCommands:
         )
 
     async def cmd_quit(self, message):
+        """Immediately shuts down the bot"""
+
         logging.info(f'Shutdown command received from {message.author}')
         await message.channel.send('Shutting down.')
         await self.bot.logout()
 
     async def cmd_say(self, message, text):
+        """Sends a message in the location the command is given.
+
+            The message is everything following the command."""
+
         await message.channel.send(text)
 
     async def cmd_sayd(self, message, text):
+        """Replaces the command with the given message.
+
+            This is achieved by deleting the message containing the command.
+            The "given message" is everything following the command.
+
+            This command does nothing if the bot can't delete messages"""
+
         try:
             await message.delete()
             await self.cmd_say(message, text)
@@ -210,15 +189,24 @@ class BotCommands:
             pass
 
     async def cmd_backup(self, message):
+        """Sends a snapshot of the database in a PM.
+
+            Snapshots are attached as .db files and are created when requested.
+            The bot will also reply with the current timestamp."""
+
         await message.author.send(
             'BACKUP ' + datetime.now().isoformat(' '),
             file=File(self.bot.main_settings.db_name)
         )
 
     async def cmd_source(self, message):
+        """Sends a link in a PM to view the bot source code."""
+
         await message.author.send(self.bot.main_settings.source_url)
 
     async def cmd_donate(self, message):
+        """Sends a link in a PM for donating to the bot creator."""
+
         await message.author.send(
             self.bot.main_settings.donate_url + (
                 '\n\n'

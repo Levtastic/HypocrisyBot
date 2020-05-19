@@ -12,13 +12,12 @@ class HelpCommands:
         self.commands.register_handler(
             'help',
             self.cmd_help,
-            user_level=UserLevel.user,
-            description=(
-                'Offers help on other commands, and lists sub-commands'
-            )
+            user_level=UserLevel.user
         )
 
     async def cmd_help(self, message, command=''):
+        """Offers help on other commands, and lists sub-commands."""
+
         user_level = UserLevel.get(message.author, message.channel)
         dispatcher, remainder = self.commands.root.get(command, user_level)
         command = self.strip_command(command, remainder)
