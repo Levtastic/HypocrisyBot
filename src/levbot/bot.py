@@ -1,5 +1,7 @@
 import asyncio
 import logging
+import sys
+import os
 
 from collections import defaultdict
 from discord import Client
@@ -41,6 +43,13 @@ class Bot(Client):
 
     def run(self, *args, **kwargs):
         super().run(self.main_settings.token, *args, **kwargs)
+
+    async def restart(self, after=0):
+        await asyncio.sleep(after)
+        await self.close()
+
+        pyexec = sys.executable
+        os.execl(pyexec, pyexec, *sys.argv)
 
     def event(self, event_name=''):
         def decorator_event(coro):

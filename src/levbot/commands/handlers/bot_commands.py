@@ -29,6 +29,11 @@ class BotCommands:
             user_level=UserLevel.bot_owner
         )
         commands.register_handler(
+            'restart',
+            self.cmd_restart,
+            user_level=UserLevel.bot_owner
+        )
+        commands.register_handler(
             'say',
             self.cmd_say,
             user_level=UserLevel.guild_bot_admin
@@ -165,6 +170,13 @@ class BotCommands:
         logging.info(f'Shutdown command received from {message.author}')
         await message.channel.send('Shutting down.')
         await self.bot.logout()
+
+    async def cmd_restart(self, message):
+        """Immediately shuts down and restarts the bot"""
+
+        logging.info(f'Restart command received from {message.author}')
+        await message.channel.send('Restarting.')
+        await self.bot.restart()
 
     async def cmd_say(self, message, text):
         """Sends a message in the location the command is given.

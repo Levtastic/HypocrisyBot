@@ -14,6 +14,7 @@ class ConsoleInput:
         self.commands = (
             'exit',
             'quit',
+            'restart',
         )
 
         WriterWrapper(sys.stdout, self.is_ready)
@@ -52,6 +53,12 @@ class ConsoleInput:
                 self.is_ready.clear()
                 print('Shutting down!')
                 await self.bot.logout()
+                return
+
+            if message == 'restart':
+                self.is_ready.clear()
+                print('Restarting...')
+                await self.bot.restart()
                 return
 
             try:
