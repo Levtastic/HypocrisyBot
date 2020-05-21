@@ -50,7 +50,7 @@ class ConsoleInput:
             if message == 'exit':
                 self.is_ready.clear()
                 print('Shutting down!')
-                await self.bot.close()
+                await self.bot.logout()
                 return
 
             try:
