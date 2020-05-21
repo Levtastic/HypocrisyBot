@@ -120,15 +120,15 @@ class CommandDispatcher:
             await message.channel.send(str(ex))
 
         except BaseException:
+            logging.exception(
+                'Error in command {} {}'.format(command, attributes)
+            )
+
             await message.channel.send(
                 'Oh no, something went horribly wrong trying to complete this'
                 ' command. Please tell the owner of this bot what command you'
                 ' entered and roughly when this happened, and I\'ll get all'
                 ' fixed up as soon as possible. Thanks!'
-            )
-
-            logging.exception(
-                'Error in command {} {}'.format(command, attributes)
             )
 
     def _get_binding_for(self, handler, attributes, message):
