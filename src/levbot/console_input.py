@@ -13,6 +13,7 @@ class ConsoleInput:
         self.is_ready = asyncio.Event()
         self.commands = (
             'exit',
+            'quit',
         )
 
         WriterWrapper(sys.stdout, self.is_ready)
@@ -47,7 +48,7 @@ class ConsoleInput:
             await self.is_ready.wait()
             message = await self.get_console_input()
 
-            if message == 'exit':
+            if message in ('exit', 'quit'):
                 self.is_ready.clear()
                 print('Shutting down!')
                 await self.bot.logout()
