@@ -125,15 +125,6 @@ class Required:
     type: type
 
 
-class BotMainCategory(Category):
-    token = Required(str)
-    db_name = 'levbot.db'
-    owner_usernames = []
-    offer_invite_link = False
-    source_url = ''
-    donate_url = ''
-
-
 class BotLogLevelsCategory(Category):
     file = 'INFO'
     console = 'ERROR'
@@ -161,7 +152,15 @@ class BotMessageSplittingCategory(Category):
 
 
 class BotCategory(Category):
-    main = BotMainCategory()
+    # values
+    token = Required(str)
+    db_name = 'levbot.db'
+    owner_usernames = []
+    offer_invite_link = False
+    source_url = ''
+    donate_url = ''
+
+    # subcategories
     logs = BotLogsCategory()
     avatar = BotAvatarCategory()
     message_splitting = BotMessageSplittingCategory()

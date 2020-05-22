@@ -1,15 +1,14 @@
 # Rename this file to `settings.toml` to use it
 
 [bot]
-    [bot.main]
-        # This setting has no default and must be set
-        token = 'token'
+    # This setting has no default and must be set
+    token = 'token'
 
-        #db_name = 'levbot.db'
-        #owner_usernames = ['name#1234']
-        #offer_invite_link = False  # allow people to invite the bot to their server
-        #source_url = 'http://my-source-code.example/'
-        #donate_url = 'http://go-here-to-donate.example/donate/'
+    #db_name = 'levbot.db'
+    #owner_usernames = ['name#1234']
+    #offer_invite_link = False  # allow people to invite the bot to their server
+    #source_url = 'http://my-source-code.example/'
+    #donate_url = 'http://go-here-to-donate.example/donate/'
 
     [bot.logs]
         #directory = 'logs'

@@ -19,7 +19,7 @@ class Bot(Client):
         super().__init__()
 
         self.settings = settings
-        self.main_settings = settings.bot.main
+        self.main_settings = settings.bot
 
         self.logger = set_up_logging(settings.bot.logs)
 
