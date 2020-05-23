@@ -20,6 +20,8 @@ class Database:
         self.models = {}
         self.add_models(CommandAlias, User, UserGuild)
 
+        self._is_open = True
+
     def __getattr__(self, name):
         if name.startswith('get_'):
             return self.get_model_factory(name[4:].split('_'))
@@ -28,6 +30,17 @@ class Database:
             type(self).__name__,
             name
         ))
+
+    @property
+    def is_open(self):
+        return self._is_open
+
+    def close(self):
+        if self.is_open:
+            logging.info('Vacuuming and closing database')
+            self.execute('VACUUM')
+            self.database.close()
+            self._is_open = False
 
     def force_update_model_tables(self):
         logging.info('Updating table layouts.')

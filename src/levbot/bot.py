@@ -40,6 +40,7 @@ class Bot(Client):
     async def close(self):
         remove_pushbullet_logger()
         await super().close()
+        self.database.close()
 
     def run(self, *args, **kwargs):
         super().run(self.main_settings.token, *args, **kwargs)
