@@ -92,18 +92,7 @@ class Model(abc.ABC):
             self.__class__._table_exists = True
 
     def has_table(self):
-        query = """
-            SELECT
-                COUNT(1)
-            FROM
-                sqlite_master
-            WHERE
-                    type = 'table'
-                AND
-                    name = ?
-        """
-
-        return int(self.database.fetch_value(query, self.table)) > 0
+        return self.database.table_exists(self.table)
 
     def build_table(self):
         with open(inspect.getfile(type(self))[:-3] + '.sql', 'r') as file:

@@ -57,6 +57,20 @@ class Database:
             self.models[cls.__name__] = cls
             self.model_commands.register_model(cls.__name__)
 
+    def table_exists(self, tablename):
+        query = """
+            SELECT
+                COUNT(1)
+            FROM
+                sqlite_master
+            WHERE
+                    type = 'table'
+                AND
+                    name = ?
+        """
+
+        return int(self.fetch_value(query, tablename)) > 0
+
     def get_model_factory(self, attrs):
         # db.get_Model()                     # empty
         # db.get_Model_by_field(field)       # one
