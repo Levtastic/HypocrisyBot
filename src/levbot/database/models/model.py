@@ -87,14 +87,14 @@ class Model(abc.ABC):
     def _build_table_if_necessary(self):
         if not self.__class__._table_exists:
             if not self.has_table():
-                self.build_table()
+                self._build_table()
 
             self.__class__._table_exists = True
 
     def has_table(self):
         return self.database.table_exists(self.table)
 
-    def build_table(self):
+    def _build_table(self):
         with open(inspect.getfile(type(self))[:-3] + '.sql', 'r') as file:
             self.database.execute(file.read(), script=True)
 
@@ -121,7 +121,7 @@ class Model(abc.ABC):
         old_data = self._get_old_data()
 
         self._delete_table()
-        self.build_table()
+        self._build_table()
 
         for row in old_data:
             fields = dict(self.fields)
