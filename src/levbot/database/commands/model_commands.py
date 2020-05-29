@@ -44,9 +44,8 @@ class ModelCommands:
         return ''
 
     def get_model(self, model_name):
-        factory_name = 'get_{}'.format(model_name)
-        factory = getattr(self.database, factory_name)
-        return factory()
+        model = getattr(self.database, model_name)
+        return model()
 
     def get_syntax(self, command, model_name):
         model = self.get_model(model_name)

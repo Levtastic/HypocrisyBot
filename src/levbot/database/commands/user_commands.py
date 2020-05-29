@@ -122,10 +122,10 @@ class UserCommands:
                 yield guild
 
     def ensure_user(self, guild, duser):
-        user = self.bot.database.get_User_by_user_did(duser.id)
+        user = self.bot.database.User.get_by(did=duser.id)
 
         if not user:
-            user = self.bot.database.get_User()
+            user = self.bot.database.User()
             user.user_did = duser.id
             user.save()
 
@@ -151,14 +151,13 @@ class UserCommands:
         raise CommandException('User `{}` not found'.format(name))
 
     def ensure_userguild(self, guild, user):
-        userguild = self.bot.database.get_UserGuild()
-        userguild = userguild.get_by(
+        userguild = self.bot.database.UserGuild.get_by(
             guild_did=guild.id,
             user_id=user.id
         )
 
         if not userguild:
-            userguild = self.bot.database.get_UserGuild()
+            userguild = self.bot.database.UserGuild()
             userguild.guild_did = guild.id
             userguild.user_id = user.id
             userguild.save()
@@ -198,7 +197,7 @@ class UserCommands:
 
     async def cmd_list_users(self, message, listtype='both', guildname='',
                              username=''):
-        users = self.bot.database.get_User_list()
+        users = self.bot.database.User.get_list()
 
         if guildname:
             guild = self.get_guild(guildname, message)

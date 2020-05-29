@@ -22,15 +22,6 @@ class Database:
 
         self._is_open = True
 
-    def __getattr__(self, name):
-        if name.startswith('get_'):
-            return self.get_model_factory(name[4:].split('_'))
-
-        raise AttributeError("'{}' object has no attribute '{}'".format(
-            type(self).__name__,
-            name
-        ))
-
     @property
     def is_open(self):
         return self._is_open
@@ -72,34 +63,6 @@ class Database:
         """
 
         return int(self.fetch_value(query, tablename)) > 0
-
-    def get_model_factory(self, attrs):
-        # db.get_Model()                     # empty
-        # db.get_Model_by_field(field)       # one
-        # db.get_Model_list()                # all
-        # db.get_Model_list_by_field(field)  # list
-        model_name = attrs.pop(0)
-
-        if model_name not in self.models:
-            raise AttributeError("No '{}' model found".format(name))
-
-        model = self.models[model_name]
-
-        if not attrs:
-            return model
-
-        if attrs.pop(0) == 'by':  # or 'list'
-            func_name = 'get_by_{}'.format('_'.join(attrs))
-            return getattr(model, func_name)
-
-        if not attrs:
-            return model.get_list
-
-        attrs.pop(0)  # 'by'
-
-        func_name = 'get_list_by_{}'.format('_'.join(attrs))
-
-        return getattr(model, func_name)
 
     def execute(self, query, parameters=(), script=False, commit=True):
         parameters = self._convert_parameters(parameters)

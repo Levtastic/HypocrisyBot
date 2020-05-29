@@ -32,7 +32,7 @@ class UserLevel(OrderedEnum):
         db_user = None
 
         if database:
-            db_user = database.get_User_by_user_did(user.id)
+            db_user = database.User.get_by(user_did=user.id)
 
         if db_user and db_user.blacklisted:
             return cls.blacklisted

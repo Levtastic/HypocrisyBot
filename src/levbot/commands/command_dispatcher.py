@@ -90,7 +90,7 @@ class CommandDispatcher:
         return (self, command_text)
 
     def _get_command_from_alias(self, command):
-        alias = self._bot.database.get_CommandAlias_by_alias(command)
+        alias = self._bot.database.CommandAlias.get_by(alias=command)
         return alias.command if alias else command
 
     def dispatch(self, command, message):

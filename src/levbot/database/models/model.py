@@ -16,18 +16,6 @@ class Model(abc.ABC):
         for field, default in self.fields.items():
             setattr(self, field, default)
 
-    def __getattr__(self, name):
-        if name.startswith('get_list_by_'):
-            return lambda value: self.get_list_by(**{name[12:]: value})
-
-        if name.startswith('get_by_'):
-            return lambda value: self.get_by(**{name[7:]: value})
-
-        raise AttributeError("'{}' object has no attribute '{}'".format(
-            type(self).__name__,
-            name
-        ))
-
     def __repr__(self):
         objfmt = '{name} `({id!r})`: {fields}'
         fieldfmt = '`{f}` = `{v!r}`'

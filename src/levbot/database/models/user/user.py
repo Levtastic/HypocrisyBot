@@ -16,7 +16,7 @@ class User(Model):
 
     @cached_slot_property('_user_guilds')
     def user_guilds(self):
-        return self.database.get_UserGuild_list_by_user_id(self.id)
+        return self.database.UserGuild.get_list_by(user_id=self.id)
 
     async def get_user(self):
         try:

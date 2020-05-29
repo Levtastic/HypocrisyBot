@@ -36,7 +36,7 @@ class VReddit:
         bot.register_event('on_reaction_add', self.on_reaction_add)
 
     async def on_ready(self):
-        for message in self.bot.database.get_VRedditMessage_list(
+        for message in self.bot.database.VRedditMessage.get_list(
                 order_by='id DESC', limit=50):
             try:
                 src_message = await message.get_src_message()
@@ -87,7 +87,7 @@ class VReddit:
 
         logging.info(f'url "{url}" detected...')
 
-        vmessage = self.bot.database.get_VRedditMessage()
+        vmessage = self.bot.database.VRedditMessage()
         vmessage.src_url = url
         vmessage.channel_did = smessage.channel.id
         vmessage.src_message_did = smessage.id
@@ -162,12 +162,12 @@ class VReddit:
 
     def get_vmessage(self, smessage, by_source=True):
         if by_source:
-            return self.bot.database.get_VRedditMessage().get_by(
+            return self.bot.database.VRedditMessage.get_by(
                 channel_did=smessage.channel.id,
                 src_message_did=smessage.id
             )
 
-        return self.bot.database.get_VRedditMessage().get_by(
+        return self.bot.database.VRedditMessage.get_by(
             channel_did=smessage.channel.id,
             dest_message_did=smessage.id
         )

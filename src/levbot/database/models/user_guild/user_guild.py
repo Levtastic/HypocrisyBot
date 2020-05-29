@@ -25,7 +25,7 @@ class UserGuild(Model):
 
     @cached_slot_property('_user')
     def user(self):
-        return self.database.get_User_by_id(self.user_id)
+        return self.database.User.get_by(id=self.user_id)
 
     @cached_slot_property('_guild')
     def guild(self):
