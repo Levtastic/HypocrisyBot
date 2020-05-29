@@ -47,13 +47,16 @@ class VReddit:
                 dest_message = None
 
             if src_message and dest_message:
-                self.bot.messages.append(src_message)
-                self.bot.messages.append(dest_message)
+                self.add_message_to_cache(src_message)
+                self.add_message_to_cache(dest_message)
 
             else:
                 message.delete()
 
         logging.info('old messages fetched')
+
+    def add_message_to_cache(self, message):
+        self.bot._connection._messages.append(message)
 
     async def on_message(self, message):
         await self.handle_new_message(message)
