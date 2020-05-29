@@ -54,8 +54,7 @@ class Database:
 
     def add_models(self, *model_classes):
         for cls in model_classes:
-            cls.bot = self.bot
-            cls.database = self
+            cls._init_class(self.bot, self)
             setattr(self, cls.__name__, cls)
             self.models[cls.__name__] = cls
             self.model_commands.register_model(cls.__name__)

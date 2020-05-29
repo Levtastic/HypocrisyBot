@@ -3,16 +3,14 @@ from discord import NotFound, Forbidden
 
 
 class VRedditMessage(Model):
-    def define_table(self):
-        return 'vreddit_message'
+    _table = 'vreddit_message'
 
-    def define_fields(self):
-        return {
-            'src_url': None,
-            'channel_did': None,
-            'src_message_did': None,
-            'dest_message_did': None,
-        }
+    _fields = (
+        'src_url',
+        'channel_did',
+        'src_message_did',
+        'dest_message_did',
+    )
 
     def get_channel(self):
         try:

@@ -6,14 +6,15 @@ from types import MappingProxyType
 
 
 class Model(abc.ABC):
-    # These attributes are tracked at the class-level, not the object-level
-    _table_exists = False
-    _table_up_to_date = False
+    # these two attributes are to be overridden in child classes
+    _table = None
+    _fields = None
 
     def __init__(self):
-        self._init_attributes()
-        self._build_table_if_necessary()
-        self._update_table_if_necessary()
+        self._id = None
+
+        for field, default in self.fields.items():
+            setattr(self, field, default)
 
     def __getattr__(self, name):
         if name.startswith('get_list_by_'):
@@ -39,6 +40,103 @@ class Model(abc.ABC):
 
         return objfmt.format(name=name, id=dbid, fields=fields)
 
+    @classmethod
+    def _init_class(cls, bot, database):
+        cls.bot = bot
+        cls.database = database
+
+        cls._check_attributes()
+        cls._init_fields()
+
+        cls._build_table_if_necessary()
+        cls._update_table_if_necessary()
+
+    @classmethod
+    def _check_attributes(cls):
+        if cls._table is None or cls._fields is None:
+            raise AttributeError(f'Child model `{cls.__name__}` must provide'
+                                  ' `_table` and `_fields` attributes')
+
+    @classmethod
+    def _init_fields(cls):
+        fields = cls._fields
+
+        if not isinstance(fields, dict):
+            fields = {field: None for field in fields}
+
+        cls._fields = MappingProxyType(fields)
+
+    @classmethod
+    def _build_table_if_necessary(cls):
+        if not cls.has_table():
+            cls._build_table()
+
+    @classmethod
+    def has_table(cls):
+        return cls.database.table_exists(cls._table)
+
+    @classmethod
+    def _build_table(cls):
+        with open(inspect.getfile(cls)[:-3] + '.sql', 'r') as file:
+            cls.database.execute(file.read(), script=True)
+
+    @classmethod
+    def _update_table_if_necessary(cls):
+        if cls._needs_new_columns():
+            cls._update_table()
+
+    @classmethod
+    def _needs_new_columns(cls):
+        query = """
+            pragma table_info('{}')
+        """.format(
+            cls._table
+        )
+
+        fields = [f['name'] for f in cls.database.fetch_all(query)]
+        fields.remove('id')
+
+        return set(fields) != set(cls._fields.keys())
+
+    @classmethod
+    def _update_table(cls):
+        old_data = cls._get_old_data()
+
+        cls._delete_table()
+        cls._build_table()
+
+        for row in old_data:
+            fields = dict(cls._fields)
+            fields.update(row)
+
+            cls.database.insert(cls._table, fields)
+
+    @classmethod
+    def _get_old_data(cls):
+        query = """
+            SELECT
+                *
+            FROM
+                {}
+            ORDER BY
+                id ASC
+        """.format(
+            cls._table
+        )
+
+        return cls.database.fetch_all(query)
+
+    @classmethod
+    def _delete_table(cls):
+        query = """
+            DROP TABLE
+                {}
+        """.format(
+            cls._table
+        )
+
+        cls.database.execute(query, commit=False)
+
     @property
     def id(self):
         return self._id
@@ -50,105 +148,6 @@ class Model(abc.ABC):
     @property
     def fields(self):
         return self._fields
-
-    def _init_attributes(self):
-        self._init_id()
-        self._init_table()
-        self._init_fields()
-
-    def _init_id(self):
-        self._id = None
-
-    def _init_table(self):
-        self._table = self.define_table()
-
-    @abc.abstractmethod
-    def define_table(self):
-        raise NotImplementedError('Child model must override define_table()')
-
-    def _init_fields(self):
-        fields = self.define_fields()
-
-        if not isinstance(fields, dict):
-            fields = {field: None for field in fields}
-
-        for field, default in fields.items():
-            setattr(self, field, default)
-
-        self._fields = MappingProxyType(fields)
-
-    @abc.abstractmethod
-    def define_fields(self):
-        raise NotImplementedError('Child model must override define_fields()')
-
-    def _build_table_if_necessary(self):
-        if not self.__class__._table_exists:
-            if not self.has_table():
-                self._build_table()
-
-            self.__class__._table_exists = True
-
-    def has_table(self):
-        return self.database.table_exists(self.table)
-
-    def _build_table(self):
-        with open(inspect.getfile(type(self))[:-3] + '.sql', 'r') as file:
-            self.database.execute(file.read(), script=True)
-
-    def _update_table_if_necessary(self):
-        if not self.__class__._table_up_to_date:
-            if self._needs_new_columns():
-                self._update_table()
-
-            self.__class__._table_up_to_date = True
-
-    def _needs_new_columns(self):
-        query = """
-            pragma table_info('{}')
-        """.format(
-            self.table
-        )
-
-        fields = [f['name'] for f in self.database.fetch_all(query)]
-        fields.remove('id')
-
-        return set(fields) != set(self.fields.keys())
-
-    def _update_table(self):
-        old_data = self._get_old_data()
-
-        self._delete_table()
-        self._build_table()
-
-        for row in old_data:
-            fields = dict(self.fields)
-            fields.update(row)
-
-            self.database.insert(self.table, fields)
-
-    def _get_old_data(self):
-        query = """
-            SELECT
-                *
-            FROM
-                {}
-            ORDER BY
-                id ASC
-        """.format(
-            self.table
-        )
-
-        return self.database.fetch_all(query)
-
-    def _delete_table(self):
-        query = """
-            DROP TABLE
-                {}
-        """.format(
-            self.table
-        )
-
-        self.database.execute(query, commit=False)
 
     def get_list_by(self, **kwargs):
         if not kwargs:

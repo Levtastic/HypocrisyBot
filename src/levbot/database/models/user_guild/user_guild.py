@@ -4,6 +4,15 @@ from ..model import Model
 
 
 class UserGuild(Model):
+    _table = 'user_guilds'
+
+    _fields = {
+        'user_id': None,
+        'guild_did': None,
+        'admin': False,
+        'blacklisted': False,
+    }
+
     def __del__(self):
         if self.id is None:
             return
@@ -25,14 +34,3 @@ class UserGuild(Model):
 
         except (NotFound, Forbidden):
             return None
-
-    def define_table(self):
-        return 'user_guilds'
-
-    def define_fields(self):
-        return {
-            'user_id': None,
-            'guild_did': None,
-            'admin': False,
-            'blacklisted': False,
-        }

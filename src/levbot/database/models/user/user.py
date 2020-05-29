@@ -6,6 +6,14 @@ from ....user_level import UserLevel
 
 
 class User(Model):
+    _table = 'users'
+
+    _fields = {
+        'user_did': None,
+        'global_admin': False,
+        'blacklisted': False,
+    }
+
     @cached_slot_property('_user_guilds')
     def user_guilds(self):
         return self.database.get_UserGuild_list_by_user_id(self.id)
@@ -17,16 +25,6 @@ class User(Model):
         except AttributeError:
             self._user = await self.bot.fetch_user(self.user_did)
             return self._user
-
-    def define_table(self):
-        return 'users'
-
-    def define_fields(self):
-        return {
-            'user_did': None,
-            'global_admin': False,
-            'blacklisted': False,
-        }
 
     def is_admin(self, guild):
         for user_guild in self.user_guilds:
