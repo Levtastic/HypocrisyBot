@@ -10,10 +10,7 @@ class Model(abc.ABC):
     _table_exists = False
     _table_up_to_date = False
 
-    def __init__(self, bot, database):
-        self.bot = bot
-        self.database = database
-
+    def __init__(self):
         self._init_attributes()
         self._build_table_if_necessary()
         self._update_table_if_necessary()
@@ -186,7 +183,7 @@ class Model(abc.ABC):
     def _build_from_fields(self, fields):
         fields = dict(fields)
 
-        model = self.__class__(self.bot, self.database)
+        model = self.__class__()
         model._id = fields.pop('id')
         for field in model.fields:
             value = fields.pop(field)

@@ -54,6 +54,9 @@ class Database:
 
     def add_models(self, *model_classes):
         for cls in model_classes:
+            cls.bot = self.bot
+            cls.database = self
+            setattr(self, cls.__name__, cls)
             self.models[cls.__name__] = cls
             self.model_commands.register_model(cls.__name__)
 
@@ -100,7 +103,7 @@ class Database:
         if name not in self.models:
             raise AttributeError("No '{}' model found".format(name))
 
-        return self.models[name](self.bot, self)
+        return self.models[name]()
 
     def execute(self, query, parameters=(), script=False, commit=True):
         parameters = self._convert_parameters(parameters)
