@@ -93,7 +93,7 @@ class Database:
             return getattr(model, func_name)
 
         if not attrs:
-            return model.get_all
+            return model.get_list
 
         attrs.pop(0)  # 'by'
 

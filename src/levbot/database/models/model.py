@@ -140,7 +140,7 @@ class Model(abc.ABC):
     @classmethod
     def get_list_by(cls, **kwargs):
         if not kwargs:
-            return cls.get_all()
+            return cls.get_list()
 
         all_fields = list(cls._fields) + ['id']
 
@@ -191,7 +191,7 @@ class Model(abc.ABC):
         return model
 
     @classmethod
-    def get_all(cls, order_by='id ASC', limit=None):
+    def get_list(cls, order_by='id ASC', limit=None):
         query = """
             SELECT
                 *

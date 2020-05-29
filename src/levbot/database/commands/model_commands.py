@@ -215,4 +215,4 @@ class ModelCommands:
             list_filter = {field: value for field, value in pairs}
             return model.get_list_by(**list_filter)
 
-        return model.get_all()
+        return model.get_list()
