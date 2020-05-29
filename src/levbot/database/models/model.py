@@ -137,30 +137,19 @@ class Model(abc.ABC):
 
         cls.database.execute(query, commit=False)
 
-    @property
-    def id(self):
-        return self._id
-
-    @property
-    def table(self):
-        return self._table
-
-    @property
-    def fields(self):
-        return self._fields
-
-    def get_list_by(self, **kwargs):
+    @classmethod
+    def get_list_by(cls, **kwargs):
         if not kwargs:
-            return self.get_all()
+            return cls.get_all()
 
-        all_fields = list(self.fields) + ['id']
+        all_fields = list(cls._fields) + ['id']
 
         for field in kwargs:
             if field not in all_fields:
                 raise AttributeError(
                     'Field "{}" not found in model "{}"'.format(
                         field,
-                        type(self).__name__
+                        cls.__name__
                     )
                 )
 
@@ -172,17 +161,18 @@ class Model(abc.ABC):
             WHERE
                 {}
         """.format(
-            self.table,
+            cls._table,
             ' AND '.join('{0} = :{0}'.format(name) for name in kwargs)
         )
-        data = self.database.fetch_all(query, kwargs)
+        data = cls.database.fetch_all(query, kwargs)
 
-        return [self._build_from_fields(fields) for fields in data]
+        return [cls._build_from_fields(fields) for fields in data]
 
-    def _build_from_fields(self, fields):
+    @classmethod
+    def _build_from_fields(cls, fields):
         fields = dict(fields)
 
-        model = self.__class__()
+        model = cls()
         model._id = fields.pop('id')
         for field in model.fields:
             value = fields.pop(field)
@@ -194,13 +184,14 @@ class Model(abc.ABC):
 
         if fields:
             logging.warning('{} has extra fields in the database: {!r}'.format(
-                type(self).__name__,
+                cls.__name__,
                 fields
             ))
 
         return model
 
-    def get_all(self, order_by='id ASC', limit=None):
+    @classmethod
+    def get_all(cls, order_by='id ASC', limit=None):
         query = """
             SELECT
                 *
@@ -208,18 +199,31 @@ class Model(abc.ABC):
                 {}
             ORDER BY
                 {}
-        """.format(self.table, order_by)
+        """.format(cls._table, order_by)
 
         if limit is not None:
             query += 'LIMIT {}'.format(limit)
 
-        data = self.database.fetch_all(query)
+        data = cls.database.fetch_all(query)
 
-        return [self._build_from_fields(fields) for fields in data]
+        return [cls._build_from_fields(fields) for fields in data]
 
-    def get_by(self, **kwargs):
-        models = self.get_list_by(**kwargs)
+    @classmethod
+    def get_by(cls, **kwargs):
+        models = cls.get_list_by(**kwargs)
         return models[0] if models else None
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def table(self):
+        return self._table
+
+    @property
+    def fields(self):
+        return self._fields
 
     def save(self):
         fields = {field: getattr(self, field) for field in self.fields}

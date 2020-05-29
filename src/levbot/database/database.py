@@ -80,10 +80,13 @@ class Database:
         # db.get_Model_list_by_field(field)  # list
         model_name = attrs.pop(0)
 
-        if not attrs:
-            return lambda: self.get_initialised_model(model_name)
+        if model_name not in self.models:
+            raise AttributeError("No '{}' model found".format(name))
 
-        model = self.get_initialised_model(model_name)
+        model = self.models[model_name]
+
+        if not attrs:
+            return model
 
         if attrs.pop(0) == 'by':  # or 'list'
             func_name = 'get_by_{}'.format('_'.join(attrs))
@@ -97,12 +100,6 @@ class Database:
         func_name = 'get_list_by_{}'.format('_'.join(attrs))
 
         return getattr(model, func_name)
-
-    def get_initialised_model(self, name):
-        if name not in self.models:
-            raise AttributeError("No '{}' model found".format(name))
-
-        return self.models[name]()
 
     def execute(self, query, parameters=(), script=False, commit=True):
         parameters = self._convert_parameters(parameters)
