@@ -1,7 +1,7 @@
 import discord
 
 from discord.utils import cached_slot_property
-from ..model import Model
+from ..model import Model, Required
 from ....user_level import UserLevel
 
 
@@ -9,10 +9,12 @@ class User(Model):
     _table = 'users'
 
     _fields = {
-        'user_did': None,
+        'user_did': Required(int),
         'global_admin': False,
         'blacklisted': False,
     }
+
+    _indexes = ['user_did']
 
     @cached_slot_property('_user_guilds')
     def user_guilds(self):

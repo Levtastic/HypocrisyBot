@@ -1,17 +1,19 @@
 from discord.utils import cached_slot_property
 from discord import NotFound, Forbidden
-from ..model import Model
+from ..model import Model, Required
 
 
 class UserGuild(Model):
     _table = 'user_guilds'
 
     _fields = {
-        'user_id': None,
-        'guild_did': None,
+        'user_id': Required(int),
+        'guild_did': Required(int),
         'admin': False,
         'blacklisted': False,
     }
+
+    _indexes = ['user_id']
 
     def __del__(self):
         if self.id is None:

@@ -1,7 +1,7 @@
 import os as _os
 from importlib import import_module as _import
 
-from .model import Model
+from .model import Model, Required, Optional
 
 
 _dir = _os.path.dirname(_os.path.realpath(__file__))

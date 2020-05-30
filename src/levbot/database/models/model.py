@@ -3,18 +3,38 @@ import inspect
 import logging
 
 from types import MappingProxyType
+from dataclasses import dataclass
+
+
+@dataclass
+class FieldDefinition:
+    type: type
+
+
+@dataclass
+class Required(FieldDefinition):
+    pass
+
+
+@dataclass
+class Optional(FieldDefinition):
+    pass
 
 
 class Model(abc.ABC):
-    # these two attributes are to be overridden in child classes
+    # these attributes are to be overridden in child classes
     _table = None
     _fields = None
+    _indexes = []
 
     def __init__(self):
         self._id = None
 
         for field, default in self.fields.items():
-            setattr(self, field, default)
+            if isinstance(default, FieldDefinition):
+                setattr(self, field, None)
+            else:
+                setattr(self, field, default)
 
     def __repr__(self):
         objfmt = '{name} `({id!r})`: {fields}'
@@ -47,12 +67,7 @@ class Model(abc.ABC):
 
     @classmethod
     def _init_fields(cls):
-        fields = cls._fields
-
-        if not isinstance(fields, dict):
-            fields = {field: None for field in fields}
-
-        cls._fields = MappingProxyType(fields)
+        cls._fields = MappingProxyType(cls._fields)
 
     @classmethod
     def _build_table_if_necessary(cls):
@@ -65,8 +80,80 @@ class Model(abc.ABC):
 
     @classmethod
     def _build_table(cls):
-        with open(inspect.getfile(cls)[:-3] + '.sql', 'r') as file:
-            cls.database.execute(file.read(), script=True)
+        try:
+            with open(inspect.getfile(cls)[:-3] + '.sql', 'r') as file:
+                 query = file.read()
+
+        except OSError:
+            query = cls._get_table_query()
+
+        cls.database.execute(query, script=True)
+
+    @classmethod
+    def _get_table_query(cls):
+        query = """
+            CREATE TABLE {table} ( {fields} ); {indexes}
+        """
+
+        fields = ','.join(
+            cls._get_field_query(k, v) for k, v in cls._fields.items()
+        )
+
+        all_fields = 'id INTEGER PRIMARY KEY ASC AUTOINCREMENT,' + fields
+
+        indexes = ';'.join(cls._get_index_query(i) for i in cls._indexes)
+
+        return query.format(
+            table=cls._table,
+            fields=all_fields,
+            indexes=indexes,
+        )
+
+    @classmethod
+    def _get_field_query(cls, name, field):
+        query = '{name} {type} {ifnull}'
+
+        sql_types = {
+            str: 'TEXT',
+            # 'NUMERIC' not used
+            int: 'INTEGER',
+            float: 'REAL',
+            # 'BLOB' used for anything else
+        }
+
+        if isinstance(field, FieldDefinition):
+            field_type = field.type
+        else:
+            field_type = type(field)
+
+        sql_type = sql_types.get(field_type, 'BLOB')
+
+        ifnull = 'NULL' if isinstance(field, Optional) else 'NOT NULL'
+
+        return query.format(
+            name=name,
+            type=sql_type,
+            ifnull=ifnull,
+        )
+
+    @classmethod
+    def _get_index_query(cls, index):
+        query = """
+            CREATE INDEX {index_name} ON {table} ( {fields} )
+        """
+
+        if isinstance(index, str):
+            index = [index]
+
+        index_name = '{}_{}'.format(cls._table, '_'.join(index))
+
+        fields = ','.join(index)
+
+        return query.format(
+            index_name=index_name,
+            table=cls._table,
+            fields=fields,
+        )
 
     @classmethod
     def _update_table_if_necessary(cls):

@@ -1,2 +1,2 @@
 from .database import Database
-from .models import Model
+from .models import Model, Required, Optional

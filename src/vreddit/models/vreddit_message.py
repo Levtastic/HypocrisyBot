@@ -1,16 +1,21 @@
-from levbot.database import Model
+from levbot.database import Model, Required, Optional
 from discord import NotFound, Forbidden
 
 
 class VRedditMessage(Model):
     _table = 'vreddit_message'
 
-    _fields = (
-        'src_url',
-        'channel_did',
-        'src_message_did',
-        'dest_message_did',
-    )
+    _fields = {
+        'src_url': Required(str),
+        'channel_did': Required(int),
+        'src_message_did': Required(int),
+        'dest_message_did': Optional(int),
+    }
+
+    _indexes = [
+        ['channel_did', 'src_message_did',],
+        ['channel_did', 'dest_message_did'],
+    ]
 
     def get_channel(self):
         try:
