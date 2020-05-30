@@ -180,8 +180,10 @@ class Model(abc.ABC):
         cls._delete_table()
         cls._build_table()
 
+        convert = lambda v: None if isinstance(v, FieldDefinition) else v
+
         for row in old_data:
-            fields = dict(cls._fields)
+            fields = {k: convert(v) for k, v in cls._fields}
             fields.update(row)
 
             cls.database.insert(cls._table, fields)
