@@ -183,7 +183,7 @@ class Model(abc.ABC):
         convert = lambda v: None if isinstance(v, FieldDefinition) else v
 
         for row in old_data:
-            fields = {k: convert(v) for k, v in cls._fields}
+            fields = {k: convert(v) for k, v in cls._fields.items()}
             fields.update(row)
 
             cls.database.insert(cls._table, fields)

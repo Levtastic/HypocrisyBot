@@ -20,6 +20,8 @@ def set_up_logging(settings):
     add_console_logger(logger, formatter, console_level)
     add_pushbullet_logger(logger, formatter, settings, pushbullet_level)
 
+    return logger
+
 
 def get_log_levels(settings):
     file_level = get_log_level(settings.levels.file)

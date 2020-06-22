@@ -36,9 +36,8 @@ class Database:
     def force_update_model_tables(self):
         logging.info('Updating table layouts.')
 
-        for model_name in self.models.keys():
-            logging.info(f' - {model_name}...')
-            model = self.get_initialised_model(model_name)
+        for name, model in self.models.items():
+            logging.info(f' - {name}...')
             model._update_table()
 
         logging.info('Tables updated.')
