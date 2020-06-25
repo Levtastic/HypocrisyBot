@@ -29,6 +29,9 @@ class MessageSplitter:
         self.space_search_len = settings.space_search_len
 
     def split(self, string):
+        if not string:
+            return ('',)
+
         return self.flatten(self.get_pieces(str(string)))
 
     def get_pieces(self, string):
