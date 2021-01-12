@@ -4,6 +4,7 @@ import aiohttp
 import asyncio
 import functools
 import logging
+import xml.etree.ElementTree as ET
 
 from uuid import uuid1 as uuid
 
@@ -80,13 +81,24 @@ class RedditVideo:
 
             self.title = main_data['title']
             self.short_url = main_data['url']
-            self.audio_url = self.short_url + '/audio'
+            self.audio_url = ''  # populate this from the DASH playlist later
             self.video_url = video_data['fallback_url']
             self.height = int(video_data['height'])
             self.width = int(video_data['width'])
             self.duration = int(video_data['duration'])
 
+            async with self.http_session.get(video_data['dash_url']) as resp:
+                dash_root = ET.fromstring(await resp.text())
+
+            dash_sets = dash_root.iter('{urn:mpeg:dash:schema:mpd:2011}AdaptationSet')
+
+            for dash_set in dash_sets:
+                if dash_set.attrib['contentType'] == 'audio':
+                    self.audio_url = self.short_url + '/' + \
+                        next(dash_set.iter('{urn:mpeg:dash:schema:mpd:2011}BaseURL')).text
+
         except (KeyError, TypeError):
+            logging.exception('Error in RedditVideo.populate')
             raise PostError('Reddit post must contain a video')
 
         self._populated = True
