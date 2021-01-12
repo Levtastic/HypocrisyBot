@@ -26,9 +26,6 @@ class AvatarManager:
         if (settings.url and settings.random_change_min):
             self.bot.loop.create_task(self.avatar_loop())
 
-        elif settings.url:
-            self.bot.loop.create_task(self.refresh_avatar())
-
     async def cmd_refresh_avatar(self, message):
         channel = message.channel
 

@@ -13,7 +13,7 @@ class VRedditMessage(Model):
     }
 
     _indexes = [
-        ['channel_did', 'src_message_did',],
+        ['channel_did', 'src_message_did'],
         ['channel_did', 'dest_message_did'],
     ]
 
@@ -30,9 +30,15 @@ class VRedditMessage(Model):
             return self._src_message
 
         except AttributeError:
-            self._src_message = await self.get_channel().fetch_message(
-                self.src_message_did
-            )
+            channel = self.get_channel()
+            if not channel:
+                self._src_message = None
+
+            else:
+                self._src_message = await channel.fetch_message(
+                    self.src_message_did
+                )
+
             return self._src_message
 
     async def get_dest_message(self):
@@ -43,9 +49,15 @@ class VRedditMessage(Model):
             return self._dest_message
 
         except AttributeError:
-            self._dest_message = await self.get_channel().fetch_message(
-                self.dest_message_did
-            )
+            channel = self.get_channel()
+            if not channel:
+                self._dest_message = None
+
+            else:
+                self._dest_message = await channel.fetch_message(
+                    self.dest_message_did
+                )
+
             return self._dest_message
 
     def delete(self, delete_discord_message=True):
