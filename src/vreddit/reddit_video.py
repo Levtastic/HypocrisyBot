@@ -104,6 +104,9 @@ class RedditVideo:
         self._populated = True
 
     async def download_file(self, filename, url, chunk_size=1024):
+        if not url:
+            return None
+
         filename = os.path.join(self.working_dir, filename)
         async with self.http_session.get(url) as resp:
             if resp.status != 200:
