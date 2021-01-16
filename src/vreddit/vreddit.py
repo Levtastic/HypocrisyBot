@@ -186,8 +186,13 @@ class VReddit:
                 ' quality video on reddit'
             )
 
+        title = video.title
+
+        if len(title) > 256:
+            title = title[:253] + '...'
+
         embed = Embed(
-            title=video.title,
+            title=title,
             url=video.short_url,
             description=description
         )
