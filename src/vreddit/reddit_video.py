@@ -93,9 +93,15 @@ class RedditVideo:
             dash_sets = dash_root.iter('{urn:mpeg:dash:schema:mpd:2011}AdaptationSet')
 
             for dash_set in dash_sets:
-                if dash_set.attrib['contentType'] == 'audio':
-                    self.audio_url = self.short_url + '/' + \
-                        next(dash_set.iter('{urn:mpeg:dash:schema:mpd:2011}BaseURL')).text
+                try:
+                    if dash_set.attrib['contentType'] == 'audio':
+                        self.audio_url = self.short_url + '/' + \
+                            next(dash_set.iter('{urn:mpeg:dash:schema:mpd:2011}BaseURL')).text
+
+                except KeyError:
+                    if dash_set[0].attrib['mimeType'] == 'audio/mp4':
+                        self.audio_url = self.short_url + '/' + \
+                            next(dash_set.iter('{urn:mpeg:dash:schema:mpd:2011}BaseURL')).text
 
         except (KeyError, TypeError):
             logging.exception('Error in RedditVideo.populate')
