@@ -138,6 +138,9 @@ class VReddit:
             return ''
 
         if 'v.redd.it' in url:
+            if url.endswith('.mp4'):
+                return ''
+
             return await self.resolve_redirects(url)
 
         return url if url[-1] == '/' else url + '/'
