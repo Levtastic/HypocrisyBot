@@ -11,12 +11,9 @@ from .reddit_video import RedditVideo, PostError
 from levbot import UserLevel
 
 
-url_chars = r'[a-z0-9\._~%\-\+&\#\?!=\(\)@]'
-url_pattern = re.compile(r'(?<!<)https?://(?:(?:\S*\.)?reddit\.com/r/' +
-                         url_chars + r'+/comments/' + url_chars +
-                         r'+/' + url_chars + r'+/?|v\.redd\.it/' +
-                         url_chars + r'+/?)\b',
-                         re.IGNORECASE)
+url_pattern = re.compile(
+    r'(?<!<)https?://(?:(?:\S*\.)?reddit\.com/r/[^/\s]+/comments/[^/\s]+/[^/\s]+/?'
+    r'|v\.redd\.it/[^/\s]+/?(?:$|(?=\s)))', re.IGNORECASE)
 
 
 class VReddit:
@@ -138,9 +135,6 @@ class VReddit:
             return ''
 
         if 'v.redd.it' in url:
-            if url.endswith('.mp4'):
-                return ''
-
             return await self.resolve_redirects(url)
 
         return url if url[-1] == '/' else url + '/'
