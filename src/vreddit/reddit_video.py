@@ -87,6 +87,10 @@ class RedditVideo:
             self.width = int(video_data['width'])
             self.duration = int(video_data['duration'])
 
+            self.quarantine = main_data['quarantine']
+            self.nsfw = main_data['over_18']
+            self.spoiler = main_data['spoiler']
+
             async with self.http_session.get(video_data['dash_url']) as resp:
                 dash_root = ET.fromstring(await resp.text())
 

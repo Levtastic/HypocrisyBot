@@ -111,7 +111,8 @@ class VReddit:
                 dmessage = await smessage.channel.send(
                     file=File(
                         filename,
-                        filename='reddit.mp4'
+                        filename='reddit.mp4',
+                        spoiler=video.spoiler or video.quarantine or video.nsfw
                     ),
                     embed=self.get_embed(
                         smessage,
@@ -183,7 +184,19 @@ class VReddit:
                 ' quality video on reddit'
             )
 
-        title = video.title
+        tags = []
+        if video.spoiler:
+            tags.append('spoiler')
+        if video.quarantine:
+            tags.append('quarantine')
+        if video.nsfw:
+            tags.append('nsfw')
+
+        title = ''
+        if tags:
+            title = '[{}] '.format(', '.join(tag.upper() for tag in tags))
+
+        title += video.title
 
         if len(title) > 256:
             title = title[:253] + '...'
