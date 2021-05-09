@@ -4,7 +4,7 @@ import sys
 import os
 
 from collections import defaultdict
-from discord import Client
+from discord import Client, Intents
 from discord.abc import Messageable
 from .console_input import ConsoleInput
 from .logging_config import set_up_logging, remove_pushbullet_logger
@@ -16,7 +16,9 @@ from . import user_level, send_splitter
 
 class Bot(Client):
     def __init__(self, settings={}, console_variables={}):
-        super().__init__()
+        intents = Intents.default()
+        intents.members = True
+        super().__init__(intents=intents)
 
         self.settings = settings
         self.main_settings = settings.bot

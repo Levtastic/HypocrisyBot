@@ -64,7 +64,7 @@ class UserCommands:
     async def cmd_add_user(self, message, username, usertype,
                            guildname='here'):
         guild = self.get_guild(guildname, message)
-        duser = self.get_discord_user(guild, username)
+        duser = await self.get_discord_user(guild, username)
         user = self.ensure_user(guild, duser)
         userguild = self.ensure_userguild(guild, user)
 
@@ -73,7 +73,7 @@ class UserCommands:
             userguild.save()
 
             return await message.channel.send(
-                'Admin `{!s}` added to `{}` successfully'.format(
+                'Admin {!s} added to `{}` successfully'.format(
                     duser,
                     guild.name
                 )
@@ -84,7 +84,7 @@ class UserCommands:
             userguild.save()
 
             return await message.channel.send(
-                'Blacklist `{!s}` added to `{}` successfully'.format(
+                'Blacklist {!s} added to `{}` successfully'.format(
                     duser,
                     guild.name
                 )
@@ -122,7 +122,7 @@ class UserCommands:
                 yield guild
 
     def ensure_user(self, guild, duser):
-        user = self.bot.database.User.get_by(did=duser.id)
+        user = self.bot.database.User.get_by(user_did=duser.id)
 
         if not user:
             user = self.bot.database.User()
@@ -131,24 +131,26 @@ class UserCommands:
 
         return user
 
-    def get_discord_user(self, guild, name):
+    async def get_discord_user(self, guild, name):
+        retmember = None
+
         if name[0:3] == '<@!':
-            retmember = guild.get_member(name[3:-1])
+            retmember = await guild.fetch_member(name[3:-1])
 
         elif name[0:2] == '<@':
-            retmember = guild.get_member(name[2:-1])
+            retmember = await guild.fetch_member(name[2:-1])
 
         else:
             name = name.lower()
 
-            for member in guild.members:
+            async for member in guild.fetch_members(limit=None):
                 if name in str(member).lower():
                     retmember = member
 
         if retmember:
             return retmember
 
-        raise CommandException('User `{}` not found'.format(name))
+        raise CommandException('User {} not found.'.format(name))
 
     def ensure_userguild(self, guild, user):
         userguild = self.bot.database.UserGuild.get_by(
@@ -167,7 +169,7 @@ class UserCommands:
     async def cmd_remove_user(self, message, username, usertype,
                               guildname='here'):
         guild = self.get_guild(guildname, message)
-        duser = self.get_discord_user(guild, username)
+        duser = await self.get_discord_user(guild, username)
         user = self.ensure_user(guild, duser)
         userguild = self.ensure_userguild(guild, user)
 
@@ -176,7 +178,7 @@ class UserCommands:
             userguild.save()
 
             return await message.channel.send(
-                'Admin `{!s}` removed from `{}` successfully'.format(
+                'Admin {!s} removed from `{}` successfully'.format(
                     duser,
                     guild.name
                 )
@@ -187,7 +189,7 @@ class UserCommands:
             userguild.save()
 
             return await message.channel.send(
-                'Blacklist `{!s}` removed from `{}` successfully'.format(
+                'Blacklist {!s} removed from `{}` successfully'.format(
                     duser,
                     guild.name
                 )
