@@ -4,6 +4,7 @@ import logging
 from levbot import Bot
 from levbot.settings import Loader
 from vreddit import VReddit, vreddit_settings
+from rainbowrole import RainbowRole, rainbowrole_settings
 
 
 def get_bot():
@@ -16,6 +17,7 @@ def get_bot():
         print(f'Connected as {bot.user}')
 
     VReddit(bot)
+    RainbowRole(bot)
 
     return bot
 
@@ -23,6 +25,7 @@ def get_bot():
 def get_settings():
     loader = Loader('settings.toml')
     loader.add_category(*vreddit_settings.get_category())
+    loader.add_category(*rainbowrole_settings.get_category())
     return loader.load()
 
 

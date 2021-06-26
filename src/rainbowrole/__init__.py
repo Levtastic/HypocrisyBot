@@ -1,0 +1,1 @@
+from .rainbowrole import RainbowRole
