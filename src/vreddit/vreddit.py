@@ -124,7 +124,10 @@ class VReddit:
             vmessage.dest_message_did = dmessage.id
             vmessage.save()
 
-            await dmessage.add_reaction('❌')
+            await asyncio.gather(
+                dmessage.add_reaction('❌'),
+                smessage.edit(suppress=True)
+            )
 
         else:
             # dang it, link deleted while we're uploading!
@@ -235,14 +238,9 @@ class VReddit:
             return
 
         vmessage = self.get_vmessage(reaction.message, False)
-
-        if UserLevel.get(user, reaction.message.channel) \
-           >= UserLevel.guild_bot_admin:
-            vmessage.delete()
-            return
-
         smessage = await vmessage.get_src_message()
 
-        if user == smessage.author:
+        if UserLevel.get(user, reaction.message.channel) \
+           >= UserLevel.guild_bot_admin or user == smessage.author:
             vmessage.delete()
-            return
+            await smessage.edit(suppress=False)
