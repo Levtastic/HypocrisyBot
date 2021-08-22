@@ -34,7 +34,7 @@ class RedditVideo:
         return self
 
     async def __aexit__(self, *args, **kwargs):
-        return await asyncio.gather(
+        await asyncio.gather(
             self.loop.run_in_executor(None, rmtree, self.working_dir),
             self.http_session.__aexit__(*args, **kwargs)
         )
@@ -43,7 +43,7 @@ class RedditVideo:
     def is_populated(self):
         return self._populated
 
-    async def get_video_file(self, max_file_size=10485760):
+    async def get_video_file(self, max_file_size=None):
         try:
             await self.populate()
         except PostError:
@@ -61,7 +61,7 @@ class RedditVideo:
         self.file_size = os.path.getsize(video_file)
         self.final_file_size = self.file_size
 
-        if self.file_size > max_file_size:
+        if max_file_size and self.file_size > max_file_size * 1048576:
             video_file = await self.ensure_size(video_file, max_file_size)
             self.final_file_size = os.path.getsize(video_file)
 
@@ -86,6 +86,7 @@ class RedditVideo:
             self.height = int(video_data['height'])
             self.width = int(video_data['width'])
             self.duration = int(video_data['duration'])
+            self.is_clipped = False
 
             self.quarantine = main_data['quarantine']
             self.nsfw = main_data['over_18']
@@ -149,22 +150,27 @@ class RedditVideo:
     async def ensure_size(self, video_file, max_file_size):
         video_file = await self.squish_file(video_file, max_file_size)
 
-        if os.path.getsize(video_file) > max_file_size:
+        size = os.path.getsize(video_file)
+        logging.info(f'file of size {size} created.')
+
+        if size >= max_file_size * 1048576:
             video_file = await self.clip_file(video_file, max_file_size)
+            self.is_clipped = True
+            size = os.path.getsize(video_file)
+            logging.info(f'file of size {size} clipped.')
 
         return video_file
 
     async def squish_file(self, video_file, max_file_size):
         result_file = os.path.join(os.path.dirname(video_file), 's.mp4')
 
-        max_kbits = max_file_size * 0.008
+        max_kbits = max_file_size * 8000
         ideal_bitrate = max_kbits / self.duration
         ideal_bitrate -= 96  # audio channel
-        ideal_bitrate *= 0.98  # allow room for metadata
 
-        if ideal_bitrate < 5:
-            # ahahahaha no
-            ideal_bitrate = 5
+        if ideal_bitrate < 50:
+            logging.info(f'Calculated bitrate of {ideal_bitrate} too low')
+            ideal_bitrate = 50
 
         rescale = ''
         if self.height > 480:
@@ -193,12 +199,10 @@ class RedditVideo:
     async def clip_file(self, video_file, max_file_size):
         result_file = os.path.join(os.path.dirname(video_file), 'c.mp4')
 
-        max_file_size -= 10000  # space for final closing bytes
-
         cmd = (
             'ffmpeg -hide_banner -loglevel panic'
             f' -i "{video_file}"'
-            f' -c copy -fs {max_file_size}'
+            f' -c copy -fs {max_file_size * 1000000}'
             f' "{result_file}"'
         )
 

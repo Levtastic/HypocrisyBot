@@ -98,8 +98,7 @@ class VReddit:
                 return vmessage.delete()
 
             with smessage.channel.typing():
-                filename = await video.get_video_file(
-                    max_file_size=7.75 * 1024 * 1024)
+                filename = await video.get_video_file(max_file_size=8)
                 if not filename:
                     # no video at this url
                     return vmessage.delete()
@@ -183,9 +182,20 @@ class VReddit:
             description += (
                 f'\n\nVideo compressed to {percentage:.2g}% of'
                 ' the original file size.'
-                '\nClick the title above to see the original'
-                ' quality video on reddit'
             )
+
+            if video.is_clipped:
+                description += (
+                    '\nThis video length may have changed to fit'
+                    " Discord's file size limits."
+                )
+
+            description += (
+                '\nClick the title above to see the original'
+                ' quality'
+            )
+            description += (' and length' if video.is_clipped else '')
+            description += ' video on reddit.'
 
         tags = []
         if video.spoiler:
