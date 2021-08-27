@@ -65,5 +65,8 @@
     #temp_directory = '{sys_temp}/vreddit'
 
 [rainbowrole]
-    # guild_id = ''
-    # role_id = ''
+    #guild_id = ''
+    #role_id = ''
+
+[userannounce]
+    #channel_id = ''
