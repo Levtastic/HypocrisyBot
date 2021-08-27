@@ -1,7 +1,6 @@
 import asyncio
 
 from discord import Colour
-from levbot.commands import CommandException
 from levbot import UserLevel
 
 
@@ -74,7 +73,7 @@ class RainbowRole:
     async def cmd_brainwave(self, message, cycles='1'):
         """Makes a set role cycle through a list of colours once per second"""
 
-        if self.is_running:
+        if self.is_running or message.guild != self.guild:
             return
 
         self.is_running = True
@@ -102,7 +101,7 @@ class RainbowRole:
     async def cmd_vaporwave(self, message, cycles='1'):
         """Makes a set role cycle through a list of colours once per minute"""
 
-        if self.is_running:
+        if self.is_running or message.guild != self.guild:
             return
 
         self.is_running = True
@@ -122,7 +121,7 @@ class RainbowRole:
     async def cmd_randomwave(self, message, cycles='1'):
         """Makes a set role cycle through random colours once per second"""
 
-        if self.is_running:
+        if self.is_running or message.guild != self.guild:
             return
 
         self.is_running = True
@@ -142,7 +141,7 @@ class RainbowRole:
     async def cmd_randomcolour(self, message):
         """Makes a set role set to a random colour"""
 
-        if self.is_running:
+        if self.is_running or message.guild != self.guild:
             return
 
         await self.role.edit(colour=Colour.random())
@@ -150,7 +149,7 @@ class RainbowRole:
     async def cmd_nocolour(self, message):
         """Makes a set role set to no colour"""
 
-        if self.is_running:
+        if self.is_running or message.guild != self.guild:
             return
 
         await self.role.edit(colour=Colour.default())
