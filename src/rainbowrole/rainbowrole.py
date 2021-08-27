@@ -30,6 +30,8 @@ class RainbowRole:
         self.is_running = False
 
         if self.settings.guild_id and self.settings.role_id:
+            bot.register_event('on_ready', self.on_ready)
+
             bot.commands.register_handler(
                 'brainwave',
                 self.cmd_brainwave,
@@ -56,6 +58,19 @@ class RainbowRole:
                 user_level=UserLevel.guild_bot_admin
             )
 
+    async def on_ready(self):
+        self.guild = await self.bot.fetch_guild(self.settings.guild_id)
+        self.role = self.guild.get_role(int(self.settings.role_id))
+
+        self.bot.register_event('on_member_join', self.on_member_join)
+
+    async def on_member_join(self, member):
+        if member.guild == self.guild:
+            await member.add_roles(
+                self.role,
+                reason='Automatically added on join'
+            )
+
     async def cmd_brainwave(self, message, cycles='1'):
         """Makes a set role cycle through a list of colours once per second"""
 
@@ -65,15 +80,14 @@ class RainbowRole:
         self.is_running = True
 
         cycles = self.get_cycles(cycles)
-        role = await self.get_role()
 
         for colour in self.colours * cycles:
             await asyncio.gather(
-                role.edit(colour=colour),
+                self.role.edit(colour=colour),
                 asyncio.sleep(1)
             )
 
-        await role.edit(colour=Colour.default())
+        await self.role.edit(colour=Colour.default())
 
         self.is_running = False
 
@@ -85,17 +99,6 @@ class RainbowRole:
 
         return max(1, min(10, cycles))
 
-    async def get_role(self):
-        guild = await self.bot.fetch_guild(self.settings.guild_id)
-        if not guild:
-            raise CommandException("Unable to find Guild by ID")
-
-        role = guild.get_role(int(self.settings.role_id))
-        if not role:
-            raise CommandException("Unable to find Role by ID")
-
-        return role
-
     async def cmd_vaporwave(self, message, cycles='1'):
         """Makes a set role cycle through a list of colours once per minute"""
 
@@ -105,15 +108,14 @@ class RainbowRole:
         self.is_running = True
 
         cycles = self.get_cycles(cycles)
-        role = await self.get_role()
 
         for colour in self.colours * cycles:
             await asyncio.gather(
-                role.edit(colour=colour),
+                self.role.edit(colour=colour),
                 asyncio.sleep(60)
             )
 
-        await role.edit(colour=Colour.default())
+        await self.role.edit(colour=Colour.default())
 
         self.is_running = False
 
@@ -126,15 +128,14 @@ class RainbowRole:
         self.is_running = True
 
         cycles = self.get_cycles(cycles)
-        role = await self.get_role()
 
         for _ in range(len(self.colours) * cycles):
             await asyncio.gather(
-                role.edit(colour=Colour.random()),
+                self.role.edit(colour=Colour.random()),
                 asyncio.sleep(1)
             )
 
-        await role.edit(colour=Colour.default())
+        await self.role.edit(colour=Colour.default())
 
         self.is_running = False
 
@@ -144,9 +145,7 @@ class RainbowRole:
         if self.is_running:
             return
 
-        role = await self.get_role()
-
-        await role.edit(colour=Colour.random())
+        await self.role.edit(colour=Colour.random())
 
     async def cmd_nocolour(self, message):
         """Makes a set role set to no colour"""
@@ -154,6 +153,4 @@ class RainbowRole:
         if self.is_running:
             return
 
-        role = await self.get_role()
-
-        await role.edit(colour=Colour.default())
+        await self.role.edit(colour=Colour.default())
