@@ -12,8 +12,7 @@ from levbot import UserLevel
 
 
 url_pattern = re.compile(
-    r'(?<!<)https?://(?:(?:\S*\.)?reddit\.com/r/[^/\s]+/comments/[^/\s]+/[^/\s]+/?'
-    r'|v\.redd\.it/[^/\s]+/?(?:$|(?=\s)))', re.IGNORECASE)
+    r'(?<!<)https?://v\.redd\.it/[^/\s]+/?(?:$|(?=\s))', re.IGNORECASE)
 
 
 class VReddit:
