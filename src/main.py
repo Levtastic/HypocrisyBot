@@ -6,6 +6,7 @@ from levbot.settings import Loader
 from vreddit import VReddit, vreddit_settings
 from rainbowrole import RainbowRole, rainbowrole_settings
 from userannounce import UserAnnounce, userannounce_settings
+from servericonswitcher import ServerIconSwitcher, servericonswitcher_settings
 
 
 def get_bot():
@@ -20,6 +21,7 @@ def get_bot():
     VReddit(bot)
     RainbowRole(bot)
     UserAnnounce(bot)
+    ServerIconSwitcher(bot)
 
     return bot
 
@@ -29,6 +31,7 @@ def get_settings():
     loader.add_category(*vreddit_settings.get_category())
     loader.add_category(*rainbowrole_settings.get_category())
     loader.add_category(*userannounce_settings.get_category())
+    loader.add_category(*servericonswitcher_settings.get_category())
     return loader.load()
 
 
