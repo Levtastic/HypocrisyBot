@@ -34,10 +34,10 @@ class ServerIconSwitcher:
         await self.bot.wait_until_ready()
 
         while not self.bot.is_closed():
-            await self.flash_icon()
-
             await asyncio.sleep(
                 random.uniform(*self.settings.between_switches))
+
+            await self.flash_icon()
 
     async def flash_icon(self):
         if random.uniform(1, 100) <= self.settings.image_2_chance:
