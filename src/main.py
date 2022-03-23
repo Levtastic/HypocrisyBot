@@ -5,6 +5,7 @@ from levbot import Bot
 from levbot.settings import Loader
 from vreddit import VReddit, vreddit_settings
 from rainbowrole import RainbowRole, rainbowrole_settings
+from reactionrole import ReactionRole
 from userannounce import UserAnnounce, userannounce_settings
 from servericonswitcher import ServerIconSwitcher, servericonswitcher_settings
 
@@ -20,6 +21,7 @@ def get_bot():
 
     VReddit(bot)
     RainbowRole(bot)
+    ReactionRole(bot)
     UserAnnounce(bot)
     ServerIconSwitcher(bot)
 
