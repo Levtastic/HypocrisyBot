@@ -52,7 +52,7 @@ class ModelCommands:
 
         fields = ''
         if command == 'edit':
-            fields = '<search_key> = <search_value> '
+            fields = '<search_key> = <search_value>, '
 
         if command in ('remove', 'list'):
             fields += '<key> = <value>'
@@ -117,7 +117,6 @@ class ModelCommands:
         syntax_message = self.get_syntax('edit', model_name)
 
         try:
-            print(repr(attributes))
             pairs = list(self.get_attribute_pairs(
                 attributes,
                 model
