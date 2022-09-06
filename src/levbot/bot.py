@@ -65,8 +65,11 @@ class Bot(Client):
         if not asyncio.iscoroutinefunction(coro):
             raise TypeError('Events must be coroutine functions')
 
-        self._event_handlers[event].append(coro)
-        logging.debug(f'{event} registered')
+        if event in self._event_handlers:
+            logging.debug(f'{event} already registered, ignoring')
+        else:
+            self._event_handlers[event].append(coro)
+            logging.debug(f'{event} registered')
 
     def unregister_event(self, event, coro):
         if event not in self._event_handlers \
