@@ -61,7 +61,7 @@ class RainbowRole:
         self.guild = await self.bot.fetch_guild(self.settings.guild_id)
         self.role = self.guild.get_role(int(self.settings.role_id))
 
-        self.bot.register_event('on_member_join', self.on_member_join)
+        # self.bot.register_event('on_member_join', self.on_member_join)
 
     async def on_member_join(self, member):
         if member.guild == self.guild:
