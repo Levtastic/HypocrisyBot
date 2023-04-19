@@ -97,7 +97,7 @@ class VReddit:
                 return vmessage.delete()
 
             with smessage.channel.typing():
-                filename = await video.get_video_file(max_file_size=8)
+                filename = await video.get_video_file(max_file_size=25)
                 if not filename:
                     # no video at this url
                     return vmessage.delete()
