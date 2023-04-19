@@ -152,9 +152,13 @@ class VReddit:
     async def _resolve_redirects(self, url, session):
         async with session.head(url) as resp:
             if 300 <= resp.status < 400 and 'Location' in resp.headers:
+                location = resp.headers['Location']
+
+                if location[0] == '/':
+                    location = f'https://www.reddit.com{location}'
+
                 return await self._resolve_redirects(
-                    resp.headers['Location'],
-                    session
+                    location, session
                 )
 
             return url

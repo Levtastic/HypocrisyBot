@@ -71,7 +71,10 @@ class RedditVideo:
         if self.is_populated:
             return
 
-        async with self.http_session.get(self.url + '.json') as resp:
+        # remove trailing data that breaks adding the .json
+        url = self.url.split('?')[0]
+
+        async with self.http_session.get(url + '.json') as resp:
             data = await resp.json()
 
         main_data = data[0]['data']['children'][0]['data']
