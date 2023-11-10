@@ -12,7 +12,9 @@ from levbot import UserLevel
 
 
 url_pattern = re.compile(
-    r'(?<!<)https?://v\.redd\.it/[^/\s]+/?(?:$|(?=\s))', re.IGNORECASE)
+    r'(?<!<)https?://(?:(?:\S*\.)?reddit\.com/r/[^/\s]+/'
+    r'(?:comments/[^/\s]+|s)/[^/\s]+/?|v\.redd\.it/[^/\s]+/?(?:$|(?=\s)))',
+    re.IGNORECASE)
 
 
 class VReddit:
@@ -136,7 +138,7 @@ class VReddit:
         if not url:
             return ''
 
-        if 'v.redd.it' in url:
+        if 'v.redd.it' in url or '/s/' in url:
             return await self.resolve_redirects(url)
 
         return url if url[-1] == '/' else url + '/'
